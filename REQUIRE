@@ -9,10 +9,12 @@ Distributions
 FredData
 HDF5
 JLD
+Plots
+Printf
 Optim 0.15.3
 QuantEcon
-Plots
+RecipesBase
 Roots
 StateSpaceRoutines
-StatPlots
+StatsPlots
 StatsBase

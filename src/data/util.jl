@@ -101,12 +101,12 @@ end
 
 """
 ```
-missing2nan!(df::DataArray)
+missing2nan!(df::Array{Union{Any, Nothing}})
 ```
 
 Convert all elements of Union{X, Missing.Missing} and the like to type X.
 """
-function missing2nan!(v::DataArray)
+function missing2nan!(v::Array{Union{Any, Nothing}})
     valid_types = [Date, Float64]
     new_v = tryparse.(new_type, v)
     if all(isnull.(new_v))
@@ -129,12 +129,12 @@ end
 
 """
 ```
-na2nan!(df::DataArray)
+na2nan!(df::Array{Union{Any, Nothing}})
 ```
 
-Convert all NAs in a DataArray to NaNs.
+Convert all NAs in a Array{Union{Any, Nothing}} to NaNs.
 """
-function na2nan!(v::DataArray)
+function na2nan!(v::Array{Union{Any, Nothing}})
     for i = 1:length(v)
         v[i] = ismissing(v[i]) ?  NaN : v[i]
     end

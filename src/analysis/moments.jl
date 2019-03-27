@@ -289,7 +289,7 @@ function prior_posterior_moments_table(m::AbstractModel,
             index = m.keys[param.key]
             (prior_mean, prior_std) = moments(param)
 
-            @printf moments_fid "\$\%4.99s\$ & " param.tex_label
+            @printf moments_fid "\$%4.99s\$ & " param.tex_label
             @printf moments_fid "%s & " (param.fixed ? "-" : distid(get(param.prior)))
             @printf moments_fid "%8.3f & " prior_mean
             @printf moments_fid "%8.3f & " prior_std
@@ -375,9 +375,9 @@ function prior_posterior_table(m::AbstractModel, post_values::Vector;
                 isa(prior, RootInverseGamma) ? prior.τ : mean(prior)
             end
 
-            @printf fid "\$\%4.99s\$ & " param.tex_label
+            @printf fid "\$%4.99s\$ & " param.tex_label
             @printf fid "%8.3f & " post_value
-            @printf fid "\%8.3f \\\\\n" post_values[index]
+            @printf fid "%8.3f \\\\\n" post_values[index]
         end
     end
 
@@ -492,8 +492,8 @@ function find_density_bands{T<:AbstractFloat}(draws::Matrix, percents::Vector{T}
     for p in percents
         out = find_density_bands(draws, p, minimize = minimize)
 
-        bands[Symbol("$(100*p)\% UB")] = vec(out[2,:])
-        bands[Symbol("$(100*p)\% LB")] = vec(out[1,:])
+        bands[Symbol("$(100*p)% UB")] = vec(out[2,:])
+        bands[Symbol("$(100*p)% LB")] = vec(out[1,:])
     end
 
     bands

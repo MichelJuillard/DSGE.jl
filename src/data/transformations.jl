@@ -171,10 +171,10 @@ end
 
 """
 ```
-difflog(x::DataArray{AbstractFloat})
+difflog(x::Array{Union{AbstractFloat, Nothing}})
 ```
 """
-function difflog(x::DataArray)
+function difflog(x::Array{Union{AbstractFloat, Nothing}})
     DSGE.na2nan!(x)
     return difflog(convert(Vector, x))
 end

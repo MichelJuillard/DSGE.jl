@@ -1,5 +1,5 @@
 #=
-This file defines additional functions to return objects of type Distribution. This is
+This file defines additional functions to return objects of struct Distribution. This is
 necessary because we specify prior distributions wrt mean and SD
 (for beta and gamma-distributed parameters) and ν and σ (for inverse gamma-distributed
 parameters). Note these functions are NOT new methods for the Distributions.Beta, etc.
@@ -7,7 +7,8 @@ functions, but rather new functions with the same names.
 =#
 
 import Distributions: params, mean, std, pdf, logpdf, rand, Distribution, Matrixvariate
-import Base: length, rank
+import Base: length
+using LinearAlgebra
 
 """
 ```
@@ -47,7 +48,7 @@ end
 
 """
 ```
-type RootInverseGamma <: Distribution{Univariate, Continuous}
+struct RootInverseGamma <: Distribution{Univariate, Continuous}
 ```
 
 If x ~ RootInverseGamma(ν, τ²), then
@@ -56,7 +57,7 @@ If x ~ RootInverseGamma(ν, τ²), then
 
 ν represents the degrees of freedom.
 """
-type RootInverseGamma <: Distribution{Univariate, Continuous}
+struct RootInverseGamma <: Distribution{Univariate, Continuous}
     ν::Float64
     τ::Float64
 end
@@ -94,7 +95,7 @@ Distributions.rand{T<:AbstractFloat}(d::RootInverseGamma; cc::T = 1.0)
 
 Generate a draw from d with variance optionally scaled by cc^2 (for a RootInverseGamma)
 """
-function Distributions.rand{T<:AbstractFloat}(d::RootInverseGamma; cc::T = 1.0)
+function Distributions.rand(d::RootInverseGamma; cc::T = 1.0) where {T<:AbstractFloat}
     return sqrt(d.ν * d.τ^2 / sum(randn(round(Int,d.ν)).^2))
 end
 
@@ -103,12 +104,12 @@ end
 DegenerateMvNormal <: Distribution{Multivariate, Continuous}
 ```
 
-The `DegenerateMvNormal` type implements a degenerate multivariate normal
+The `DegenerateMvNormal` struct implements a degenerate multivariate normal
 distribution. The covariance matrix may not be full rank (hence degenerate).
 
 See [Multivariate normal distribution - Degenerate case](en.wikipedia.org/wiki/Multivariate_normal_distribution#Degenerate_case).
 """
-type DegenerateMvNormal <: Distribution{Multivariate, Continuous}
+struct DegenerateMvNormal <: Distribution{Multivariate, Continuous}
     μ::Vector          # mean
     σ::Matrix          # standard deviation
 end
@@ -140,7 +141,7 @@ Distributions.rand{T<:AbstractFloat}(d::DegenerateMvNormal; cc::T = 1.0)
 
 Generate a draw from `d` with variance optionally scaled by `cc^2`.
 """
-function Distributions.rand{T<:AbstractFloat}(d::DegenerateMvNormal; cc::T = 1.0)
+function Distributions.rand(d::DegenerateMvNormal; cc::T = 1.0) where {T<:AbstractFloat}
     return d.μ + cc*d.σ*randn(length(d))
 end
 
@@ -161,11 +162,11 @@ end
 DegenerateDiagMvTDist <: Distribution{Multivariate, Continuous}
 ```
 
-The `DegenerateDiagMvTDist` type implements a degenerate multivariate Student's t
+The `DegenerateDiagMvTDist` struct implements a degenerate multivariate Student's t
 distribution, where the covariance matrix is diagonal. The covariance matrix may
 not be full rank (hence degenerate).
 """
-type DegenerateDiagMvTDist <: Distribution{Multivariate, Continuous}
+struct DegenerateDiagMvTDist <: Distribution{Multivariate, Continuous}
     μ::Vector          # mean
     σ::Matrix          # standard deviation
     ν::Int             # degrees of freedom
@@ -250,12 +251,12 @@ end
 MatrixNormal <: Distribution{Matrixvariate, Continuous}
 ```
 
-The `MatrixNormal` type implements a matrixvariate normal
+The `MatrixNormal` struct implements a matrixvariate normal
 distribution. Note that the matrix must be square.
 
 See [Matrix normal distribution - Degenerate case](en.wikipedia.org/wiki/Matrix_normal_distribution).
 """
-type MatrixNormal <: Distribution{Matrixvariate, Continuous}
+struct MatrixNormal <: Distribution{Matrixvariate, Continuous}
     μ::Matrix # mean
     U::Matrix # row variance
     V::Matrix # col variance

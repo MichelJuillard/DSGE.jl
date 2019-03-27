@@ -1,9 +1,11 @@
-isdefined(Base, :__precompile__) && __precompile__()
+#isdefined(Base, :__precompile__) && __precompile__()
+__precompile__(false)
 
 module DSGE
-    using Base.Dates, Base.Test, BenchmarkTools
-    using CSV, DataFrames, DataArrays, Distributions, FredData, HDF5, JLD, Optim, Plots, RecipesBase, StateSpaceRoutines, StatPlots
+    using Dates, Test, BenchmarkTools
+    using CSV, DataFrames, Distributions, FredData, HDF5, JLD, Optim, Plots, RecipesBase, StateSpaceRoutines, StatsPlots
     using DataStructures: SortedDict, insert!, ForwardOrdering, OrderedDict
+    using Printf
     using QuantEcon: solve_discrete_lyapunov
     using Roots: fzero, ConvergenceFailed
     using StatsBase: sample
