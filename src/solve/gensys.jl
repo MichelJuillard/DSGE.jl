@@ -208,7 +208,6 @@ function gensys(F::GeneralizedSchur, c, Ψ, Π, div)
 
     ywt = z * ywt
 
-    println(abs.(gev))
     return G1, C, impact, fmat, fwt, ywt, gev, eu, loose
 end
 

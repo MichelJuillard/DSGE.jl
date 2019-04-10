@@ -353,7 +353,6 @@ function transform_to_model_space(p::Parameter{T,SquareRoot}, x::T) where T
 end
 function transform_to_model_space(p::Parameter{T,Exponential}, x::T) where T
     (a,b),c = p.transform_parameterization,one(T)
-    println(x, " ", a+exp(c*(x-b)))
     a + exp(c*(x-b))
 end
 

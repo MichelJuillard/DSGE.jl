@@ -366,7 +366,6 @@ end
 function csminwell_grad(fcn, x, args...; kwargs...)
     f(a) = fcn(a, args...; kwargs...)
     gr = Calculus.gradient(f, x)
-    println(gr)
     bad_grads = abs.(gr) .>= 1e15
     gr[bad_grads] .= 0.0
     return gr, any(bad_grads)

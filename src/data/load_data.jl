@@ -516,7 +516,6 @@ function read_population_forecast(m::AbstractModel; verbose::Symbol = :low)
     if ismissing(population_mnemonic)
         error("No population mnemonic provided")
     else
-        println(population_mnemonic)
         read_population_forecast(population_forecast_file, :population_mnemonic; verbose = verbose)
     end
 end
