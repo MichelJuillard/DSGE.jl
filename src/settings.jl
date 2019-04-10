@@ -18,7 +18,7 @@ computational settings.
   `print=true`.
 - `description::String`: Short description of what the setting is used for.
 """
-struct Setting{T}
+mutable struct Setting{T}
     key::Symbol                  # name of setting
     value::T                     # whatever the setting is
     print::Bool                  # whether or not to add this setting to the print
@@ -67,6 +67,10 @@ function (<=)(m::AbstractModel, s::Setting)
     end
 end
 
+convert(::Type{Setting{Dates.Date}}, s::Setting{Missing}) = Setting(s.key, Dates.Date(1), s.print, s.code, s.description)
+convert(::Type{Setting{Int64}}, s::Setting{Missing}) = Setting(s.key, 0, s.print, s.code, s.description)
+convert(::Type{Setting{String}}, s::Setting{Missing}) = Setting(s.key, "", s.print, s.code, s.description)
+
 """
 ```
 update!(a::Setting, b::Setting)
@@ -86,6 +90,9 @@ function update!(a::Setting, b::Setting)
         return
     end
 
+    if typeof(a) != typeof(b)
+        a = convert(typeof(b), a)
+    end
     a.value = b.value
 
     # b overrides the print boolean of a if:

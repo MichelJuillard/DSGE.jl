@@ -9,11 +9,11 @@ type optimization_result{T}
 ```
 Container type for various optimization outputs
 """
-type optimization_result{T}
-    minimizer::Vector{T}
-    minimum::T
-    converged::Bool
-    iterations::Int
+mutable struct optimization_result{T}
+               minimizer::Vector{T}
+               minimum::T
+               converged::Bool
+               iterations::Int
 end
 
 """
@@ -67,8 +67,8 @@ function optimize!(m::AbstractModel,
     end
 
     # Inputs to optimization
-    H0             = 1e-4 * eye(n_parameters_free(m))
-    para_free_inds = find([!θ.fixed for θ in m.parameters])
+    H0             = 1e-4 * Matrix{Float64}(I, n_parameters_free(m), n_parameters_free(m))
+    para_free_inds = findall([!θ.fixed for θ in m.parameters])
     x_model        = transform_to_real_line(m.parameters)
     x_opt          = x_model[para_free_inds]
 

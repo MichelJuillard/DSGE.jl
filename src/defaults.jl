@@ -33,8 +33,8 @@ function default_settings!(m::AbstractModel)
         "Observables used in semiconditional forecasts")
     settings[:use_population_forecast] = Setting(:use_population_forecast, false,
         "Whether to use population forecasts as data")
-    settings[:population_mnemonic] = Setting(:population_mnemonic, Nullable(:CNP16OV__FRED),
-        "Mnemonic of FRED data series for computing per-capita values (a Nullable{Symbol})")
+    settings[:population_mnemonic] = Setting(:population_mnemonic, :CNP16OV__FRED,
+        "Mnemonic of FRED data series for computing per-capita values (a Symbol)")
     settings[:hpfilter_population] = Setting(:hpfilter_population, true,
         "Whether to HP filter combined population and forecast")
 
@@ -57,7 +57,8 @@ function default_settings!(m::AbstractModel)
         "Padding for anticipated policy shocks")
 
     # General computation
-    settings[:use_parallel_workers] = Setting(:use_parallel_workers, true,
+#    settings[:use_parallel_workers] = Setting(:use_parallel_workers, true,
+    settings[:use_parallel_workers] = Setting(:use_parallel_workers, false,
         "Use available parallel workers in computations")
 
     # Estimation
@@ -69,15 +70,16 @@ function default_settings!(m::AbstractModel)
         "Max number of free params for which to calculate Hessian")
     settings[:optimization_method] = Setting(:optimization_method, :csminwel,
         "Method for finding the posterior mode")
-    settings[:optimization_iterations] = Setting(:optimization_iterations, 100,
+#    settings[:optimization_iterations] = Setting(:optimization_iterations, 100,
+    settings[:optimization_iterations] = Setting(:optimization_iterations, 2,
         "Number of iterations the optimizer should run for")
     settings[:optimization_step_size] = Setting(:optimization_step_size, 0.01,
         "Step size scaling factor for optimization")
 	settings[:simulated_annealing_temperature] = Setting(:simulated_annealing_temperature, Optim.log_temperature,
         "Temperature function for simulated annealing")
-   settings[:simulated_annealing_block_proportion] = Setting(:simulated_annealing_block_proportion, 0.3,
+    settings[:simulated_annealing_block_proportion] = Setting(:simulated_annealing_block_proportion, 0.3,
         "Fraction of parameters to vary for each proposed move in simulated annealing")
-   settings[:optimization_ftol] = Setting(:optimization_ftol, 1e-10,
+    settings[:optimization_ftol] = Setting(:optimization_ftol, 1e-10,
         "Relative function difference threshold for optimization")
     settings[:optimization_xtol] = Setting(:optimization_xtol, 1e-10,
         "Relative input vector difference threshold for optimization")
@@ -111,7 +113,7 @@ function default_settings!(m::AbstractModel)
         Dict{Symbol, String}())
     settings[:forecast_jstep] = Setting(:forecast_jstep, 5,
         "Forecast thinning step (in addition to MH thinning step")
-    settings[:forecast_uncertainty_override] = Setting(:forecast_uncertainty_override, Nullable{Bool}(),
+    settings[:forecast_uncertainty_override] = Setting(:forecast_uncertainty_override, missing,
         "If non-null, overrides default drawing states/shocks behavior in smoother and forecast")
     settings[:forecast_smoother] = Setting(:forecast_smoother, :durbin_koopman,
         "Choice of smoother to use during forecasting. Can be :hamilton, :koopman, :carter_kohn, or :durbin_koopman")
@@ -123,9 +125,9 @@ function default_settings!(m::AbstractModel)
         "Students-t degrees of freedom fixed value")
     settings[:forecast_zlb_value] = Setting(:forecast_zlb_value, 0.13/4,
         "Value of the zero lower bound in forecast periods, if we choose to enforce it")
-    settings[:shockdec_startdate] = Setting(:shockdec_startdate, Nullable{Date}(),
+    settings[:shockdec_startdate] = Setting(:shockdec_startdate, missing,
         "Date of start of shock decomposition output period. If null, then shockdec starts at date_mainsample_start")
-    settings[:shockdec_enddate] = Setting(:shockdec_enddate, Nullable{Date}(),
+    settings[:shockdec_enddate] = Setting(:shockdec_enddate, missing,
         "Date of end of shock decomposition output period. If null, then shockdec ends at date_forecast_end")
     settings[:impulse_response_horizons] = Setting(:impulse_response_horizons, 40,
         "Number of periods for which to calculate an impulse response")

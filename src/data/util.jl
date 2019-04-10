@@ -32,17 +32,17 @@ Convert `string` in the form "YYqX", "YYYYqX", or "YYYY-qX" to a Date of the end
 the indicated quarter. "X" is in `{1,2,3,4}` and the case of "q" is ignored.
 """
 function quartertodate(string::String)
-    if ismatch(r"^[0-9]{2}[qQ][1-4]$", string)
+    if occursin(r"^[0-9]{2}[qQ][1-4]$", string)
         year = "20"*string[1:2]
         quarter = string[end]
-    elseif ismatch(r"^[0-9]{4}[qQ][1-4]$", string)
+    elseif occursin(r"^[0-9]{4}[qQ][1-4]$", string)
         year = string[1:4]
         quarter = string[end]
-    elseif ismatch(r"^[0-9]{4}-[qQ][1-4]$", string)
+    elseif occursin(r"^[0-9]{4}-[qQ][1-4]$", string)
         year = string[1:4]
         quarter = string[end]
     else
-        throw(ParseError("Invalid format: $string"))
+        throw(Meta.ParseError("Invalid format: $string"))
     end
 
     year = parse(Int, year)
@@ -83,8 +83,7 @@ Compute the number of quarters between t1 and t0, including t0 and excluding t1.
 """
 function subtract_quarters(t1::Date, t0::Date)
     days = t1 - t0
-    quarters = round(days.value / 365.25 * 4.0)
-    return convert(Int, quarters)
+    quarters = Integer(round(days.value / 365.25 * 4.0))
 end
 
 
@@ -101,12 +100,12 @@ end
 
 """
 ```
-missing2nan!(df::Array{Union{Any, Nothing}})
+missing2nan!(df::Array{Union{Any, Missing}})
 ```
 
 Convert all elements of Union{X, Missing.Missing} and the like to type X.
 """
-function missing2nan!(v::Array{Union{Any, Nothing}})
+function missing2nan!(v::Array{Union{Any, Missing}})
     valid_types = [Date, Float64]
     new_v = tryparse.(new_type, v)
     if all(isnull.(new_v))
@@ -123,18 +122,20 @@ Convert all NAs in a DataFrame to NaNs.
 """
 function na2nan!(df::DataFrame)
     for col in names(df)
-        df[ismissing.(df[col]), col] = NaN
+        if col != :date
+            df[ismissing.(df[col]), col] = NaN
+        end
     end
 end
 
 """
 ```
-na2nan!(df::Array{Union{Any, Nothing}})
+na2nan!(df::Array{Union{Any, Missing}})
 ```
 
-Convert all NAs in a Array{Union{Any, Nothing}} to NaNs.
+Convert all NAs in a Array{Union{Any, Missing}} to NaNs.
 """
-function na2nan!(v::Array{Union{Any, Nothing}})
+function na2nan!(v::Array{Union{Any, Missing}})
     for i = 1:length(v)
         v[i] = ismissing(v[i]) ?  NaN : v[i]
     end
@@ -188,7 +189,7 @@ function get_data_filename(m::AbstractModel, cond_type::Symbol)
         push!(filestrings, "cdvt=" * cond_vintage(m))
     end
 
-    push!(filestrings, "dsid=" * lpad(data_id(m), 2, 0))
+    push!(filestrings, "dsid=" * lpad(string(data_id(m)), 2, string(0)))
     push!(filestrings, "vint=" * data_vintage(m))
     filename = join(filestrings, "_")
 

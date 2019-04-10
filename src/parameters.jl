@@ -55,7 +55,7 @@ parameter's value is updated.
 abstract type Parameter{T,U<:Transform} <: AbstractParameter{T} end
 
 ParameterVector{T} =  Vector{AbstractParameter{T}}
-NullablePrior      =  Union{ContinuousUnivariateDistribution, Nothing}
+NullablePrior      =  Union{ContinuousUnivariateDistribution, Missing}
 
 """
 ```
@@ -161,7 +161,7 @@ equilibrium conditions.
 - `description::String`: Short description of the parameter's economic significance.
 - `tex_label::String`: String for printing parameter name to LaTeX.
 """
-struct SteadyStateParameter{T} <: AbstractParameter{T}
+mutable struct SteadyStateParameter{T} <: AbstractParameter{T}
     key::Symbol
     value::T
     description::String
@@ -192,9 +192,9 @@ Base.showerror(io::IO, ex::ParamBoundsError) = print(io, ex.msg)
 
 """
 ```
-parameter(key::Symbol, value::T, valuebounds = (value,value),
+parameter(key::Symbol, value::T; valuebounds = (value,value),
           transform_parameterization = (value,value),
-          transform = Untransformed(), prior = NullablePrior(),
+          transform = Untransformed(), prior = missing,
           fixed = true, scaling::Function = identity, description = "",
           tex_label::String = "") where {T,U<:Transform}
 ```
@@ -208,7 +208,7 @@ function parameter(key::Symbol,
                    valuebounds::Interval{T} = (value,value),
                    transform_parameterization::Interval{T} = (value,value),
                    transform::U             = DSGE.Untransformed(),
-                   prior::NullableOrPrior   = NullablePrior();
+                   prior::NullableOrPrior   = missing;
                    fixed::Bool              = true,
                    scaling::Function        = identity,
                    description::String = "No description available.",
@@ -236,7 +236,7 @@ function parameter(key::Symbol,
     end
 
     # ensure that we have a Nullable{Distribution}, if not construct one
-    prior_new = !isa(prior_new,NullablePrior) ? NullablePrior(prior_new) : prior_new
+    # prior_new = !isa(prior_new,NullablePrior) ? NullablePrior(prior_new) : prior_new
 
     if scaling == identity
         return UnscaledParameter{T,U_new}(key, value, valuebounds_new,
@@ -353,6 +353,7 @@ function transform_to_model_space(p::Parameter{T,SquareRoot}, x::T) where T
 end
 function transform_to_model_space(p::Parameter{T,Exponential}, x::T) where T
     (a,b),c = p.transform_parameterization,one(T)
+    println(x, " ", a+exp(c*(x-b)))
     a + exp(c*(x-b))
 end
 
@@ -396,9 +397,12 @@ transform_to_real_line(pvec::ParameterVector{T}) where T = map(transform_to_real
 
 # define operators to work on parameters
 
+Base.convert(::Type{Float64}, p::UnscaledParameter) = p.value
+Base.convert(::Type{Float64}, p::ScaledParameter) = p.scaledvalue
+Base.convert(::Type{Float64}, p::SteadyStateParameter) = p.value
 Base.convert(::Type{T}, p::UnscaledParameter) where {T<:Number}    = convert(T,p.value)
-Base.convert(::Type{T}, p::ScaledParameter) where {T<:Number}      = convert(T,p.scaledvalue)  
-Base.convert(::Type{T}, p::SteadyStateParameter) where {T<:Number} = convert(T,p.value) 
+Base.convert(::Type{T}, p::ScaledParameter) where {T<:Number}      = convert(T,p.scaledvalue)
+Base.convert(::Type{T}, p::SteadyStateParameter) where {T<:Number} = convert(T,p.value)
 
 Base.promote_rule(::Type{AbstractParameter{T}}, ::Type{U}) where {T<:Number,U<:Number} = promote_rule(T,U)
 
@@ -465,7 +469,7 @@ update(pvec::ParameterVector{T}, values::Vector{T}) where T = update!(copy(pvec)
 
 Distributions.pdf(p::AbstractParameter) = exp(logpdf(p))
 # we want the unscaled value for ScaledParameters
-Distributions.logpdf(p::Parameter{T,U}) where {T,U} = logpdf(get(p.prior),p.value)
+Distributions.logpdf(p::Parameter{T,U}) where {T,U} = logpdf(p.prior,p.value)
 
 # this function is optimised for speed
 function Distributions.logpdf(pvec::ParameterVector{T}) where T

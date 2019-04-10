@@ -31,7 +31,7 @@ Type defining an alternative policy rule.
   policy. See options from `Plots.jl`. Defaults to `:solid`.
 
 """
-type AltPolicy
+struct AltPolicy
     key::Symbol
     eqcond::Function
     solve::Function

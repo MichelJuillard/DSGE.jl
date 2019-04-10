@@ -1,4 +1,5 @@
 using DSGE
+using LinearAlgebra
 
 # construct a model object
 m = Model990()

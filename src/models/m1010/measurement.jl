@@ -17,10 +17,10 @@ Var(u_t) = EE
 Cov(ϵ_t, u_t) = 0
 ```
 """
-function measurement{T<:AbstractFloat}(m::Model1010{T},
-                                       TTT::Matrix{T},
-                                       RRR::Matrix{T},
-                                       CCC::Vector{T})
+function measurement(m::Model1010{T},
+                     TTT::Matrix{T},
+                     RRR::Matrix{T},
+                     CCC::Vector{T}) where T<:AbstractFloat
     endo     = m.endogenous_states
     endo_new = m.endogenous_states_augmented
     exo      = m.exogenous_shocks
@@ -170,8 +170,7 @@ function measurement{T<:AbstractFloat}(m::Model1010{T},
         DD[obs[Symbol("obs_nominalrate$i")]]                 = m[:Rstarn]
 
         if subspec(m) == "ss21"
-            QQ[exo[Symbol("rm_shl$i")], exo[Symbol("rm_shl$i")]] = m[Symbol("σ_r_m")]^2 /
-            n_anticipated_shocks(m)
+            QQ[exo[Symbol("rm_shl$i")], exo[Symbol("rm_shl$i")]] = m[Symbol("σ_r_m")]^2 / n_anticipated_shocks(m)
         else
             QQ[exo[Symbol("rm_shl$i")], exo[Symbol("rm_shl$i")]] = m[Symbol("σ_r_m$i")]^2
         end

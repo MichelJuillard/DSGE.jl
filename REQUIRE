@@ -5,16 +5,20 @@ CSV
 DataArrays
 DataFrames
 DataStructures
+#Distributed
 Distributions
 FredData
 HDF5
 JLD
+#LinearAlgebra
 Plots
-Printf
+#Printf
 Optim 0.15.3
 QuantEcon
 RecipesBase
 Roots
+#SparseArrays
+SpecialFunctions
 StateSpaceRoutines
 StatsPlots
 StatsBase

@@ -28,7 +28,7 @@ Estimate the DSGE parameter posterior distribution.
 """
 function estimate(m::AbstractModel, df::DataFrame;
                   verbose::Symbol=:low,
-                  proposal_covariance::Matrix=Matrix(0,0),
+                  proposal_covariance::Matrix=Matrix(undef, 0,0),
                   mle::Bool = false,
                   run_MH::Bool = true)
     data = df_to_matrix(m, df)
@@ -37,7 +37,7 @@ function estimate(m::AbstractModel, df::DataFrame;
 end
 function estimate(m::AbstractModel;
                   verbose::Symbol=:low,
-                  proposal_covariance::Matrix=Matrix(0,0),
+                  proposal_covariance::Matrix=Matrix(undef, 0,0),
                   mle::Bool = false,
                   run_MH::Bool = true)
     # Load data
@@ -47,7 +47,7 @@ function estimate(m::AbstractModel;
 end
 function estimate(m::AbstractModel, data::Matrix{Float64};
                   verbose::Symbol=:low,
-                  proposal_covariance::Matrix=Matrix(0,0),
+                  proposal_covariance::Matrix=Matrix(undef, 0,0),
                   mle::Bool = false,
                   run_MH::Bool = true)
 
@@ -78,7 +78,7 @@ function estimate(m::AbstractModel, data::Matrix{Float64};
         attempts = 1
 
         while !converged
-            tic()
+            ti = time_ns()
             out, H = optimize!(m, data;
                                method = get_setting(m, :optimization_method),
                                ftol=ftol, grtol = gtol, xtol = xtol,
@@ -92,7 +92,7 @@ function estimate(m::AbstractModel, data::Matrix{Float64};
 
             if VERBOSITY[verbose] >= VERBOSITY[:low]
                 @printf "Total iterations completed: %d\n" total_iterations
-                @printf "Optimization time elapsed: %5.2f\n" optimization_time += toq()
+                @printf "Optimization time elapsed: %5.2f\n" optimization_time += ti - time_ns()
             end
 
             # Write params to file after every `n_iterations` iterations
@@ -160,8 +160,8 @@ function estimate(m::AbstractModel, data::Matrix{Float64};
         @assert (n, n) == size(hessian)
 
         # Compute the inverse of the Hessian via eigenvalue decomposition
-        S_diag, U = eig(hessian)
-        big_eig_vals = find(x -> x > 1e-6, S_diag)
+        S_diag, U = eigen(hessian)
+        big_eig_vals = findall(x -> x > 1e-6, S_diag)
         rank = length(big_eig_vals)
 
         S_inv = zeros(n, n)
@@ -175,7 +175,7 @@ function estimate(m::AbstractModel, data::Matrix{Float64};
         DSGE.DegenerateMvNormal(params, proposal_covariance)
     end
 
-    if DSGE.rank(propdist) != n_parameters_free(m)
+    if rank(propdist) != n_parameters_free(m)
         println("problem –    shutting down dimensions")
     end
 
@@ -227,12 +227,12 @@ distribution of the parameters.
    - `:high`: Status updates provided at each draw.
 ```
 """
-function metropolis_hastings{T<:AbstractFloat}(propdist::Distribution,
-                                               m::AbstractModel,
-                                               data::Matrix{T},
-                                               cc0::T,
-                                               cc::T;
-                                               verbose::Symbol=:low)
+function metropolis_hastings(propdist::Distribution,
+                             m::AbstractModel,
+                             data::Matrix{T},
+                             cc0::T,
+                             cc::T;
+                             verbose::Symbol=:low) where T<:AbstractFloat
 
 
     # If testing, set the random seeds at fixed numbers
@@ -402,7 +402,7 @@ function compute_parameter_covariance(m::AbstractModel)
     # Read in saved parameter draws
     param_draws_path = rawpath(m,"estimate","mhsave.h5")
     if !isfile(param_draws_path)
-        @printf STDERR "Saved parameter draws not found.\n"
+        @printf(stderr, "Saved parameter draws not found.\n")
         return
     end
     param_draws = h5open(param_draws_path, "r") do f

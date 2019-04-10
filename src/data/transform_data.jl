@@ -31,7 +31,7 @@ function transform_data(m::AbstractModel, levels::DataFrame; cond_type::Symbol =
 
     # Step 1: HP filter (including population forecasts, if they're being used)
     population_mnemonic = parse_population_mnemonic(m)[1]
-    if !isnull(population_mnemonic)
+    if population_mnemonic[1] != nothing
         population_forecast_levels = if use_population_forecast(m)
             read_population_forecast(m; verbose = verbose)
         else
@@ -39,7 +39,7 @@ function transform_data(m::AbstractModel, levels::DataFrame; cond_type::Symbol =
         end
 
         population_data, _ = transform_population_data(levels, population_forecast_levels,
-                                                       get(population_mnemonic);
+                                                       Symbol(String(population_mnemonic));
                                                        verbose = verbose,
                                                        use_hpfilter = hpfilter_population(m))
 
@@ -149,13 +149,13 @@ function transform_population_data(population_data::DataFrame, population_foreca
 
     # HP filter
     if use_hpfilter
-        population_all = convert(Array{Float64}, population_all)
+#        population_all = convert(Array{Float64}, population_all)
         filtered_population, _ = hpfilter(population_all, 1600)
     end
 
     # Output dictionary for population data
     population_data_out = DataFrame()
-    population_data_out[:date] = convert(Array{Date}, population_recorded[:date])
+    population_data_out[:date] = population_recorded[:date]
     population_data_out[:dlpopulation_recorded] = difflog(population_recorded[population_mnemonic])
 
     n_population_forecast_obs = size(population_forecast,1)

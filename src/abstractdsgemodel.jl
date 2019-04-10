@@ -207,13 +207,13 @@ function get_key(m::AbstractModel, class::Symbol, index::Int)
     end
 end
 
-# Parse population mnemonic into 2 Nullable{Symbol}s from one
+# Parse population mnemonic into 2 {Symbol}s from one
 function parse_population_mnemonic(m::AbstractModel)
     mnemonic = get_setting(m, :population_mnemonic)
-    if isnull(mnemonic)
-        return [Nullable{Symbol}(), Nullable{Symbol}()]
+    if ismissing(mnemonic)
+        return [missing, missing]
     else
-        return map(s -> Nullable(Symbol(s)), split(string(get(mnemonic)), DSGE_DATASERIES_DELIM))
+        return split(string(mnemonic), DSGE_DATASERIES_DELIM)
     end
 end
 
@@ -312,7 +312,7 @@ end
 
 function date_shockdec_start(m::AbstractModel)
     startdate = get_setting(m, :shockdec_startdate)
-    if !isnull(startdate)
+    if !ismissing(startdate)
         return get(startdate)
     else
         return date_mainsample_start(m)
@@ -321,7 +321,7 @@ end
 
 function date_shockdec_end(m::AbstractModel)
     enddate =  get_setting(m, :shockdec_enddate)
-    if !isnull(enddate)
+    if !ismissing(enddate)
         return get(enddate)
     else
         return date_forecast_end(m)

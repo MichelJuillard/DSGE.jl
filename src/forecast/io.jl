@@ -165,7 +165,7 @@ end
 """
 ```
 write_forecast_outputs(m, output_vars, forecast_output_files, forecast_output;
-    df = DataFrame(), block_number = Union{Int64, Nothing}(), block_inds = 1:0,
+    df = DataFrame(), block_number = Union{Int64, Missing}(), block_inds = 1:0,
     verbose = :low)
 ```
 
@@ -179,9 +179,9 @@ function write_forecast_outputs(m::AbstractModel, input_type::Symbol,
                                 forecast_output_files::Dict{Symbol, String},
                                 forecast_output::Dict{Symbol, Array{Float64}};
                                 df::DataFrame = DataFrame(),
-                                block_number::Union{Int64, Nothing} = Nothing(),
-                                block_inds::Range{Int64} = 1:0,
-                                subset_inds::Range{Int64} = 1:0,
+                                block_number::Union{Int64, Missing} = missing,
+                                block_inds::UnitRange{Int64} = 1:0,
+                                subset_inds::UnitRange{Int64} = 1:0,
                                 verbose::Symbol = :low)
 
     for var in output_vars
@@ -192,7 +192,7 @@ function write_forecast_outputs(m::AbstractModel, input_type::Symbol,
             continue
         end
         filepath = forecast_output_files[var]
-        if typeof(block_number) == Nothing || get(block_number) == 1
+        if typeof(block_number) == Missing || get(block_number) == 1
             jldopen(filepath, "w") do file
                 write_forecast_metadata(m, file, var)
 
@@ -207,7 +207,7 @@ function write_forecast_outputs(m::AbstractModel, input_type::Symbol,
                 else
                     # Otherwise, pre-allocate HDF5 dataset which will contain
                     # all draws
-                    if !(typeof(block_number) == Nothing) && get(block_number) == 1
+                    if !(typeof(block_number) == Missing) && get(block_number) == 1
                         # Determine forecast output size
                         dims  = get_forecast_output_dims(m, input_type, var; subset_inds = subset_inds)
                         block_size = forecast_block_size(m)
@@ -224,7 +224,7 @@ function write_forecast_outputs(m::AbstractModel, input_type::Symbol,
 
         if var != :histobs
             jldopen(filepath, "r+") do file
-                if typeof(block_number) == Nothing
+                if typeof(block_number) == Missing
                     write(file, "arr", forecast_output[var])
                 else
                     write_forecast_block(file, forecast_output[var], block_inds)
@@ -329,7 +329,7 @@ write_forecast_block(file::JLD.JldFile, arr::Array, block_number::Int,
 Writes `arr` to the subarray of `file` indicated by `block_inds`.
 """
 function write_forecast_block(file::JLD.JldFile, arr::Array,
-                              block_inds::Range{Int64})
+                              block_inds::UnitRange{Int64})
     pfile = file.plain
     dataset = HDF5.d_open(pfile, "arr")
     ndims = length(size(dataset))
@@ -368,7 +368,7 @@ end
 
 function read_forecast_output(m::AbstractModel, input_type::Symbol, cond_type::Symbol,
                               output_var::Symbol, var_name::Symbol,
-                              shock_name::Union{Symbol, Nothing} =Nothing();
+                              shock_name::Union{Symbol, Missing} = missing;
                               forecast_string::String = "")
     # Get filename
     filename = get_meansbands_input_file(m, input_type, cond_type, output_var,
@@ -380,7 +380,7 @@ function read_forecast_output(m::AbstractModel, input_type::Symbol, cond_type::S
 
     jldopen(filename, "r") do file
         # Read forecast output
-        fcast_series = if (typeof(shock_name) == Nothing)
+        fcast_series = if (typeof(shock_name) == Missing)
             read_forecast_series(file, class, product, var_name)
         else
             read_forecast_series(file, class, product, var_name, get(shock_name))

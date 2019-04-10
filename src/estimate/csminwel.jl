@@ -3,7 +3,7 @@ This code is based on a routine originally copyright Chris Sims.
 See http://sims.princeton.edu/yftp/optimize/
 =#
 
-immutable Csminwel <: Optim.SecondOrderOptimizer end
+struct Csminwel <: Optim.SecondOrderOptimizer end
 
 const rc_messages = Dict(0 => "Standard Iteration",
                          1 => "zero gradient",
@@ -300,7 +300,7 @@ function csminwel(fcn::Function,
         end
 
         # record# retcodeh of previous x
-        copy!(x_previous, x)
+        copyto!(x_previous, x)
 
         # update before next iteration
         f_x_previous, f_x = f_x, fh
@@ -328,7 +328,7 @@ function csminwel(fcn::Function,
         @csminwelltrace
     end
 
-    return MultivariateOptimizationResults(Csminwel(), x0, x, convert(Float64, f_x),
+    return MultivariateOptimizationResults(Csminwel(), x0, x, f_x,
         iteration, iteration==iterations, x_converged, xtol, x_resid, f_converged, ftol, f_resid,
         gr_converged, grtol, gr_resid, false, tr, f_calls, g_calls, 0), H  # also return H
 end
@@ -355,7 +355,7 @@ function csminwel(fcn::Function,
                   rng::AbstractRNG     = MersenneTwister(0),
                   kwargs...)
 
-    grad{T<:Number}(x::Array{T}) = csminwell_grad(fcn, x, args...; kwargs...)
+    grad(x::Array{T}) where T<:Number = csminwell_grad(fcn, x, args...; kwargs...)
     csminwel(fcn, grad, x0, H0, args...;
              xtol=xtol, ftol=ftol, grtol=grtol, iterations=iterations,
              store_trace=store_trace, show_trace=show_trace,
@@ -366,8 +366,9 @@ end
 function csminwell_grad(fcn, x, args...; kwargs...)
     f(a) = fcn(a, args...; kwargs...)
     gr = Calculus.gradient(f, x)
+    println(gr)
     bad_grads = abs.(gr) .>= 1e15
-    gr[bad_grads] = 0.0
+    gr[bad_grads] .= 0.0
     return gr, any(bad_grads)
 end
 

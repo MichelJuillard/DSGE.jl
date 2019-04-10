@@ -79,7 +79,7 @@ equilibrium conditions.
   dictionary that stores names and transformations to/from model units. See
   `PseudoObservable` for further details.
 """
-type Model990{T} <: AbstractModel{T}
+mutable struct Model990{T} <: AbstractModel{T}
     parameters::ParameterVector{T}                         # vector of all time-invariant model parameters
     steady_state::ParameterVector{T}                       # model steady-state values
     keys::OrderedDict{Symbol,Int}                          # human-readable names for all the model
@@ -674,7 +674,7 @@ function settings_m990!(m::Model990)
         "Observables used in semiconditional forecasts")
 
     # Forecast
-    m <= Setting(:shockdec_startdate, Nullable(quartertodate("2007-Q1")))
+    m <= Setting(:shockdec_startdate, quartertodate("2007-Q1"))
 end
 
 """

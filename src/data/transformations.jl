@@ -65,14 +65,14 @@ the filtered population series. Otherwise it divides by the result of
 """
 function percapita(m::AbstractModel, col::Symbol, df::DataFrame)
     if hpfilter_population(m)
-        population_mnemonic = Nullable(:filtered_population)
+        population_mnemonic = :filtered_population
     else
         population_mnemonic = parse_population_mnemonic(m)[1]
-        if isnull(population_mnemonic)
+        if ismissing(population_mnemonic)
             error("No population mnemonic provided")
         end
     end
-    percapita(col, df, get(population_mnemonic))
+    percapita(col, df, population_mnemonic)
 end
 
 function percapita(col::Symbol, df::DataFrame, population_mnemonic::Symbol)
@@ -171,10 +171,10 @@ end
 
 """
 ```
-difflog(x::Array{Union{AbstractFloat, Nothing}})
+difflog(x::Array{Union{AbstractFloat, Missing}})
 ```
 """
-function difflog(x::Array{Union{AbstractFloat, Nothing}})
+function difflog(x::Array{Union{AbstractFloat, Missing}})
     DSGE.na2nan!(x)
     return difflog(convert(Vector, x))
 end

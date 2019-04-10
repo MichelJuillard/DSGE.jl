@@ -13,17 +13,17 @@ Compute Hessian of function `fcn` evaluated at `x`.
 - `verbose`: Print verbose output
 - `distr`: Use available parallel workers to increase performance.
 """
-function hessizero{T<:AbstractFloat}(fcn::Function,
-                                    x::Vector{T};
-                                    check_neg_diag::Bool=false,
-                                    verbose::Symbol=:none,
-                                    distr::Bool=true)
+function hessizero(fcn::Function,
+                   x::Vector{T};
+                   check_neg_diag::Bool=false,
+                   verbose::Symbol=:none,
+                   distr::Bool=true) where T<:AbstractFloat
     n_para = length(x)
     hessian  = zeros(n_para, n_para)
 
     # Compute diagonal elements first
     if distr && nworkers() > 1
-        diag_elements = @sync @parallel (hcat) for i = 1:n_para
+        diag_elements = @sync @distributed (hcat) for i = 1:n_para
             hess_diag_element(fcn, x, i; check_neg_diag=check_neg_diag, verbose=verbose)
         end
         for i = 1:n_para
@@ -43,7 +43,7 @@ function hessizero{T<:AbstractFloat}(fcn::Function,
 
     # Build indices to iterate over
     n_off_diag_els = Int(n_para*(n_para-1)/2)
-    off_diag_inds = Vector{Tuple{Int,Int}}(n_off_diag_els)
+    off_diag_inds = Vector{Tuple{Int,Int}}(undef, n_off_diag_els)
     k=1
     for i=1:(n_para-1), j=(i+1):n_para
         off_diag_inds[k] = (i,j)
@@ -52,14 +52,14 @@ function hessizero{T<:AbstractFloat}(fcn::Function,
 
     # Iterate over off diag elements
     if distr
-        off_diag_out = @sync @parallel (hcat) for (i,j) in off_diag_inds
+        off_diag_out = @sync @distributed (hcat) for (i,j) in off_diag_inds
             σ_xσ_y = sqrt(abs(hessian[i, i]*hessian[j, j]))
             hess_offdiag_element(fcn, x, i, j, σ_xσ_y; verbose=verbose)
         end
         # Ensure off_diag_out is array
         off_diag_out = hcat(off_diag_out)
     else
-        off_diag_out = Array{Tuple{T, T},1}(n_off_diag_els)
+        off_diag_out = Array{Tuple{T, T},1}(undef, n_off_diag_els)
         for (k,(i,j)) in enumerate(off_diag_inds)
             σ_xσ_y = sqrt(abs(hessian[i, i]*hessian[j, j]))
             off_diag_out[k] = hess_offdiag_element(fcn, x, i, j, σ_xσ_y; verbose=verbose)
@@ -89,12 +89,12 @@ function hessizero{T<:AbstractFloat}(fcn::Function,
 end
 
 # Compute diag element
-function hess_diag_element{T<:AbstractFloat}(fcn::Function,
-                                              x::Vector{T},
-                                              i::Int;
-                                              ndx::Int=6,
-                                              check_neg_diag::Bool=false,
-                                              verbose::Symbol=:none)
+function hess_diag_element(fcn::Function,
+                           x::Vector{T},
+                           i::Int;
+                           ndx::Int=6,
+                           check_neg_diag::Bool=false,
+                           verbose::Symbol=:none) where T<:AbstractFloat
     # Setup
     n_para = length(x)
     dxscale  = ones(n_para, 1)
@@ -138,13 +138,13 @@ function hess_diag_element{T<:AbstractFloat}(fcn::Function,
 end
 
 # Compute off diag element
-function hess_offdiag_element{T<:AbstractFloat}(fcn::Function,
-                                                 x::Vector{T},
-                                                 i::Int,
-                                                 j::Int,
-                                                 σ_xσ_y::T;
-                                                 ndx::Int=6,
-                                                 verbose::Symbol=:none)
+function hess_offdiag_element(fcn::Function,
+                              x::Vector{T},
+                              i::Int,
+                              j::Int,
+                              σ_xσ_y::T;
+                              ndx::Int=6,
+                              verbose::Symbol=:none) where T<:AbstractFloat
     # Setup
     n_para = length(x)
     dxscale  = ones(n_para, 1)

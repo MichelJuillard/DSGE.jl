@@ -174,7 +174,7 @@ function compute_meansbands(m::AbstractModel, input_type::Symbol, cond_type::Sym
                             output_var::Symbol, var_name::Symbol, df::DataFrame;
                             forecast_string::String = "",
                             pop_growth::AbstractVector{Float64} = Float64[],
-                            shock_name::Union{Symbol, Nothing} = Nothing(),
+                            shock_name::Union{Symbol, Missing} = missing,
                             density_bands::Vector{Float64} = [0.5,0.6,0.7,0.8,0.9],
                             minimize::Bool = false,
                             compute_shockdec_bands::Bool = false)

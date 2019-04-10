@@ -194,6 +194,7 @@ function load_data_levels(m::AbstractModel; verbose::Symbol=:low)
     end
 
     # turn NAs into NaNs
+
     na2nan!(df)
 
     sort!(df, :date)
@@ -202,8 +203,8 @@ function load_data_levels(m::AbstractModel; verbose::Symbol=:low)
     if !m.testing
         filename = inpath(m, "raw", "population_data_levels_$vint.csv")
         mnemonic = parse_population_mnemonic(m)[1]
-        if !isnull(mnemonic)
-            CSV.write(filename, df[:,[:date, get(mnemonic)]])
+        if !ismissing(mnemonic)
+            CSV.write(filename, df[:,[:date, Symbol(String(mnemonic))]])
         end
     end
 
@@ -246,7 +247,7 @@ function load_cond_data_levels(m::AbstractModel; verbose::Symbol=:low)
 
         # Use population forecast as population data
         population_forecast_file = inpath(m, "raw", "population_forecast_" * data_vintage(m) * ".csv")
-        if isfile(population_forecast_file) && !isnull(get_setting(m, :population_mnemonic))
+        if isfile(population_forecast_file) && !ismissing(get_setting(m, :population_mnemonic))
             pop_forecast = CSV.read(population_forecast_file)
 
             population_mnemonic = get(parse_population_mnemonic(m)[1])
@@ -404,7 +405,7 @@ function df_to_matrix(m::AbstractModel, df::DataFrame; cond_type::Symbol = :none
     sort!(cols, by = x -> m.observables[x])
     df1 = df1[cols]
 
-    return convert(Matrix{Float64}, df1)'
+    return permutedims(Matrix{Float64}(df1), [2,1])
 end
 
 """
@@ -432,7 +433,7 @@ function data_to_df(m::AbstractModel, data::Matrix{T}, start_date::Date) where T
         ind = m.observables[var]
         df[var] = vec(data[ind, :])
     end
-
+    
     return df
 end
 
@@ -512,10 +513,11 @@ function read_population_forecast(m::AbstractModel; verbose::Symbol = :low)
     population_forecast_file = inpath(m, "raw", "population_forecast_" * data_vintage(m) * ".csv")
     population_mnemonic = parse_population_mnemonic(m)[1]
 
-    if isnull(population_mnemonic)
+    if ismissing(population_mnemonic)
         error("No population mnemonic provided")
     else
-        read_population_forecast(population_forecast_file, get(population_mnemonic); verbose = verbose)
+        println(population_mnemonic)
+        read_population_forecast(population_forecast_file, :population_mnemonic; verbose = verbose)
     end
 end
 

@@ -46,7 +46,7 @@ Note that the Cartesian product (product x class) is the set of options for
   `DataFrame`s containing confidence bands for each variable. See
   `find_density_bands` for more information.
 """
-type MeansBands
+struct MeansBands
     metadata::Dict{Symbol,Any}
     means::DataFrame
     bands::Dict{Symbol,DataFrame}
@@ -420,7 +420,7 @@ function get_shockdec_means(mb::MeansBands, var::Symbol; shocks::Vector{Symbol} 
     # If `shocks` not provided, give all the shocks
     var_cols = collect(names(mb.means))[find([contains(string(col), string(var)) for col in names(mb.means)])]
     if !isempty(shocks)
-        var_cols = [col -> contains(string(col), string(shock)) ? col : nothing for shock in shocks]
+        var_cols = [col -> contains(string(col), string(shock)) ? col : missing for shock in shocks]
     end
 
     # Make a new DataFrame with column the column names
@@ -552,7 +552,7 @@ function get_shockdec_bands(mb::MeansBands, var::Symbol;
     # If `shocks` not provided, give all the shocks
     var_cols = collect(keys(mb.bands))[find([contains(string(col), string(var)) for col in keys(mb.bands)])]
     if !isempty(shocks)
-        var_cols = [col -> contains(string(col), string(shock)) ? col : nothing for shock in shocks]
+        var_cols = [col -> contains(string(col), string(shock)) ? col : missing for shock in shocks]
     end
 
     # Extract the subset of bands we want to return. Return all bands if `bands` not provided.
