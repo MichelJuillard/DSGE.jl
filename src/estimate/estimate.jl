@@ -162,17 +162,17 @@ function estimate(m::AbstractModel, data::Matrix{Float64};
         # Compute the inverse of the Hessian via eigenvalue decomposition
         S_diag, U = eigen(hessian)
         big_eig_vals = findall(x -> x > 1e-6, S_diag)
-        rank = length(big_eig_vals)
+        bev_rank = length(big_eig_vals)
 
         S_inv = zeros(n, n)
-        for i = (n-rank+1):n
+        for i = (n-bev_rank+1):n
             S_inv[i, i] = 1/S_diag[i]
         end
 
         hessian_inv = U*sqrt.(S_inv) #this is the inverse of the hessian
-        DSGE.DegenerateMvNormal(params, hessian_inv)
+        DegenerateMvNormal(params, hessian_inv)
     else
-        DSGE.DegenerateMvNormal(params, proposal_covariance)
+        DegenerateMvNormal(params, proposal_covariance)
     end
 
     if rank(propdist) != n_parameters_free(m)
