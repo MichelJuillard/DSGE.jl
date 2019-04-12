@@ -92,7 +92,7 @@ function estimate(m::AbstractModel, data::Matrix{Float64};
 
             if VERBOSITY[verbose] >= VERBOSITY[:low]
                 @printf "Total iterations completed: %d\n" total_iterations
-                @printf "Optimization time elapsed: %5.2f\n" optimization_time += ti - time_ns()
+                @printf "Optimization time elapsed: %5.2f\n" optimization_time += (time_ns() - ti)/1e9
             end
 
             # Write params to file after every `n_iterations` iterations
@@ -296,7 +296,7 @@ function metropolis_hastings(propdist::Distribution,
 
     for block = 1:n_blocks
 
-        tic()
+        ti = time_ns()
         block_rejections = 0
 
         for j = 1:(n_sim*mhthin)
@@ -342,7 +342,7 @@ function metropolis_hastings(propdist::Distribution,
 
             # Save every (mhthin)th draw
             if j % mhthin == 0
-                draw_index = convert(Int, j/mhthin)
+                draw_index = ceil(Integer, j/mhthin)
                 mhparams[draw_index, :]  = para_old'
             end
         end # of block
@@ -364,7 +364,7 @@ function metropolis_hastings(propdist::Distribution,
         # Calculate time to complete this block, average block time, and
         # expected time to completion
         if VERBOSITY[verbose] >= VERBOSITY[:low]
-            block_time = toq()
+            block_time = (time_ns() - ti)/1e9
             total_sampling_time += block_time
             total_sampling_time_minutes = total_sampling_time/60
             expected_time_remaining_sec     = (total_sampling_time/block)*(n_blocks - block)

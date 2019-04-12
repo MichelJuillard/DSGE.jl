@@ -69,8 +69,8 @@ function default_settings!(m::AbstractModel)
     settings[:n_hessian_test_params] = Setting(:n_hessian_test_params, typemax(Int),
         "Max number of free params for which to calculate Hessian")
     settings[:optimization_method] = Setting(:optimization_method, :csminwel,
-        "Method for finding the posterior mode")
-#    settings[:optimization_iterations] = Setting(:optimization_iterations, 100,
+                                             "Method for finding the posterior mode")
+    # MJ
     settings[:optimization_iterations] = Setting(:optimization_iterations, 2,
         "Number of iterations the optimizer should run for")
     settings[:optimization_step_size] = Setting(:optimization_step_size, 0.01,
