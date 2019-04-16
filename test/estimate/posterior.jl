@@ -1,5 +1,6 @@
 using DSGE
-using HDF5, Base.Test
+using HDF5, Test
+using Dates
 
 path = dirname(@__FILE__)
 
@@ -8,7 +9,7 @@ custom_settings = Dict{Symbol, Setting}(
 m = AnSchorfheide(custom_settings = custom_settings, testing = true)
 
 file = "$path/../reference/posterior.h5"
-data = h5read(file, "data")'
+data = Matrix(h5read(file, "data")')
 lh_expected = h5read(file, "likelihood")
 post_expected = h5read(file, "posterior")
 

@@ -1,5 +1,5 @@
 using DSGE
-using Base.Test
+using Test
 
 # Test `hessizero` in context of Rosenbrock function
 function rosenbrock(x::Vector)
@@ -19,10 +19,10 @@ end
 
 # At the min, ensure no negatives in diagonal
 x0 = [1.0, 1.0]
-hessian_expected = rosenbrock_hessian(x0)
-hessian, _ = DSGE.hessizero(rosenbrock, x0; check_neg_diag=true)
+global hessian_expected = rosenbrock_hessian(x0)
+global hessian, _ = DSGE.hessizero(rosenbrock, x0; check_neg_diag=true)
 @testset "Check valid hessian at the minimum" begin
-    @test_matrix_approx_eq hessian_expected hessian
+    @test @test_matrix_approx_eq hessian_expected hessian
 end
 
 # Not at the min (indeed, we are at max), ensure throws error

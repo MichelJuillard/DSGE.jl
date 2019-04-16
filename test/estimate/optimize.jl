@@ -1,5 +1,6 @@
 using DSGE
 using HDF5
+using Test
 path = dirname(@__FILE__)
 
 # Test in model optimization
@@ -10,7 +11,7 @@ m = AnSchorfheide(custom_settings = custom_settings, testing = true)
 
 file = "$path/../reference/optimize.h5"
 x0 = h5read(file, "params")
-data = h5read(file, "data")'
+data = Matrix(h5read(file, "data")')
 minimizer = h5read(file, "minimizer")
 minimum = h5read(file, "minimum")
 H_expected = h5read(file, "H")

@@ -1,5 +1,7 @@
-using Base.Test
-@everywhere using DSGE, JLD
+using Test
+using Distributed
+
+@everywhere using DSGE, JLD, Printf, LinearAlgebra
 
 my_tests = [
             "core",
@@ -25,15 +27,15 @@ my_tests = [
             "forecast/forecast",
             "forecast/shock_decompositions",
             "forecast/impulse_responses",
-            "forecast/io",
-            "forecast/forecast_one",
-            "analysis/compute_meansbands",
-            "altpolicy/altpolicy",
+#            "forecast/io",
+#            "forecast/forecast_one",
+#            "analysis/compute_meansbands",
+#            "altpolicy/altpolicy",
             "scenarios/scenario",
             "scenarios/forecast",
             "scenarios/switching",
-            "scenarios/drivers",
-            "plot/plot"
+#            "scenarios/drivers",
+#            "plot/plot"
             ]
 
 for test in my_tests

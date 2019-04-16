@@ -1,5 +1,6 @@
 using DSGE, DataFrames, JLD
-using Base.Test
+using Test
+using Dates
 
 path = dirname(@__FILE__)
 
@@ -7,7 +8,7 @@ path = dirname(@__FILE__)
 m = AnSchorfheide(testing = true)
 m <= Setting(:date_forecast_start, quartertodate("2015-Q4"))
 
-df, system, z0, P0 = jldopen("$path/../reference/forecast_args.jld", "r") do file
+df, system, z0, P0 = jldopen("$path/../reference/forecast_args_v1.jld", "r") do file
     read(file, "df"), read(file, "system"), read(file, "z0"), read(file, "P0")
 end
 
@@ -19,7 +20,7 @@ end
 # Without providing z0 and P0
 @testset "Check Kalman filter outputs without initializing state/state-covariance" begin
     kal = DSGE.filter(m, df, system)
-    for out in fieldnames(kal)
+    for out in fieldnames(typeof(kal))
         expect = exp_kal[out]
         actual = kal[out]
 
@@ -34,7 +35,7 @@ end
 # Providing z0 and P0
 @testset "Check Kalman filter outputs initializing state/state-covariance" begin
     kal = DSGE.filter(m, df, system, z0, P0)
-    for out in fieldnames(kal)
+    for out in fieldnames(typeof(kal))
         expect = exp_kal[out]
         actual = kal[out]
 

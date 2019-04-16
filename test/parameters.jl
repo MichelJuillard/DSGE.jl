@@ -1,5 +1,5 @@
 using DSGE
-using Base.Test, Distributions
+using Test, Distributions, InteractiveUtils
 
 @testset "Ensure transformations to the real line/model space are valid" begin
     for T in subtypes(Transform)
@@ -18,7 +18,7 @@ N = 10^2
 u = parameter(:bloop, 2.5230, (1e-8, 5.), (1e-8, 5.), DSGE.SquareRoot(); fixed = true)
 v = parameter(:cat, 2.5230, (1e-8, 5.), (1e-8, 5.), DSGE.Exponential(), Gamma(2.00, 0.1))
 
-pvec =  ParameterVector{Float64}(N)
+pvec =  ParameterVector{Float64}(undef, N)
 for i in 1:length(pvec)
 	pvec[i] = (i%2 == 0) ? u : v
 end
@@ -28,7 +28,7 @@ end
 end
 
 updated = update(pvec, ones(length(pvec)))
-update!(pvec, ones(length(pvec)))
+DSGE.update!(pvec, ones(length(pvec)))
 
 @testset "Check if update! preserves dimensions and values" begin
     @test all(updated .== pvec)
@@ -48,7 +48,7 @@ end
 
 # vector of new values must be the same length
 @testset "Ensure update! enforces the same length of the parameter vector being updated" begin
-    @test_throws AssertionError update!(pvec, ones(length(pvec)-1))
+    @test_throws AssertionError DSGE.update!(pvec, ones(length(pvec)-1))
 end
 
 @testset "Ensure parameters being updated are of the same type." begin
@@ -97,21 +97,21 @@ sstest(m)
     @test m[:ι_w].valuebounds == (0.0, .9999)
     @test m[:ι_w].transform == DSGE.Untransformed()
     @test m[:ι_w].transform_parameterization == (0.0,0.9999)
-    @test isa(m[:ι_w].prior.value, Normal)
+    @test isa(m[:ι_w].prior, Normal)
 
     @test m[:ι_p].value == 0.0
     @test m[:ι_p].valuebounds == (0.0, 0.0)
-    @test isnull(m[:ι_p].prior)
+    @test ismissing(m[:ι_p].prior)
     @test m[:ι_p].fixed == true
 
     @test m[:δ].value == 0.02
     @test m[:δ].valuebounds == (0.02, 0.02)
-    @test isnull(m[:δ].prior)
+    @test ismissing(m[:δ].prior)
     @test m[:δ].fixed == true
 
     @test m[:ϵ_p].value == 0.750
     @test m[:ϵ_p].transform == DSGE.Exponential()
-    @test isa(m[:ϵ_p].prior.value, Gamma)
+    @test isa(m[:ϵ_p].prior, Gamma)
     @test m[:ϵ_p].fixed==false
 end
 

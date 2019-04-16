@@ -1,5 +1,6 @@
 using DSGE
 using HDF5
+using Test
 
 path = dirname(@__FILE__)
 

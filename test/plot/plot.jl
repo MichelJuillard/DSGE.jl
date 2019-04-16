@@ -1,4 +1,4 @@
-using DSGE, HDF5, JLD, Plots
+using DSGE, HDF5, JLD, Plots, Test
 
 path = dirname(@__FILE__)
 
@@ -70,3 +70,24 @@ hist_mb = read_mb(m, :full, :none, :histobs)
 fcast_mb = read_mb(m, :full, :none, :bddforecastobs)
 hair_plot(:obs_nominalrate, realized, [hist_mb], [fcast_mb];
           plotroot = saveroot(m), verbose = :none)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,4 +1,4 @@
-using DSGE, JLD, Base.Test
+using DSGE, JLD, Test
 
 path = dirname(@__FILE__)
 
@@ -18,7 +18,7 @@ exp_kal12 = jldopen("$path/../reference/kalman_cat_out.jld", "r") do file
 end
 
 @testset "Testing Kalman output concatenation" begin
-    for arg in fieldnames(kal1)
+    for arg in fieldnames(typeof(kal1))
         @test exp_kal12[arg] ≈ kal12[arg]
     end
 end

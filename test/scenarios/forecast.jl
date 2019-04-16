@@ -1,4 +1,4 @@
-using DSGE, Base.Test
+using DSGE, Test, LinearAlgebra
 
 # Initialize model object
 m = AnSchorfheide(testing = true)

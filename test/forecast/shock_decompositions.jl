@@ -1,4 +1,4 @@
-using DSGE, JLD
+using DSGE, JLD, Test, Dates
 
 path = dirname(@__FILE__)
 
@@ -27,7 +27,7 @@ states, obs, pseudo = shock_decompositions(m, system, histshocks)
 end
 
 # With shockdec_startdate null
-m <= Setting(:shockdec_startdate, Nullable{Date}())
+m <= Setting(:shockdec_startdate, missing)
 states, obs, pseudo = shock_decompositions(m, system, histshocks)
 
 @testset "Test shockdec with null startdate" begin

@@ -1,5 +1,5 @@
 using DSGE
-using HDF5, Base.Test
+using HDF5, Test
 using DataFrames
 
 path = dirname(@__FILE__)
@@ -12,7 +12,7 @@ m = AnSchorfheide(custom_settings = custom_settings, testing = true)
 
 # Read in the data, mode, and hessian
 mode = h5read("$path/../reference/hessian.h5","paramsmode")
-data = h5read("$path/../reference/hessian.h5","data")'
+data = Matrix(h5read("$path/../reference/hessian.h5","data")')
 
 # Read in the covariance matrix for Metropolis-Hastings and reference parameter draws
 hessian_inv, ref_draws, ref_cov =

@@ -1,13 +1,13 @@
 using HDF5
-using Base.Test
+using Test
 using DSGE
 
 path = dirname(@__FILE__)
 
-file = "$path/../reference/solve.h5"
-TTT_expected = h5read(file, "TTT")
-CCC_expected = h5read(file, "CCC")
-RRR_expected = h5read(file, "RRR")
+myfile = "$path/../reference/solve.h5"
+TTT_expected = h5read(myfile, "TTT")
+CCC_expected = h5read(myfile, "CCC")
+RRR_expected = h5read(myfile, "RRR")
 
 m = AnSchorfheide()
 TTT, RRR, CCC = solve(m)

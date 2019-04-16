@@ -1,4 +1,4 @@
-using DSGE, Base.Test, HDF5, JLD
+using DSGE, Test, HDF5, JLD, LinearAlgebra
 
 path = dirname(@__FILE__)
 
@@ -27,6 +27,9 @@ output_vars = add_requisite_output_vars([:histpseudo, :histobs,
 
 # Check error handling for input_type = :subset
 @testset "Ensure properly error handling for input_type = :subset" begin
+    forecast_one(m, :subset, :none, output_vars,
+                 subset_inds = 1:10, forecast_string = "",
+                 verbose = :none)
     @test_throws ErrorException forecast_one(m, :subset, :none, output_vars,
                                     subset_inds = 1:10, forecast_string = "",
                                     verbose = :none)

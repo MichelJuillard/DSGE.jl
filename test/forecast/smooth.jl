@@ -1,4 +1,4 @@
-using DSGE, DataFrames, JLD
+using DSGE, DataFrames, JLD, Test, Dates
 
 path = dirname(@__FILE__())
 
@@ -6,7 +6,7 @@ path = dirname(@__FILE__())
 m = AnSchorfheide(testing = true)
 m <= Setting(:date_forecast_start, quartertodate("2015-Q4"))
 
-df, system = jldopen("$path/../reference/forecast_args.jld","r") do file
+df, system = jldopen("$path/../reference/forecast_args_v1.jld","r") do file
     read(file, "df"), read(file, "system")
 end
 

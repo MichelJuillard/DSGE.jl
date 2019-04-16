@@ -1,4 +1,4 @@
-using DSGE, Base.Test, JLD
+using DSGE, Test, JLD, OrderedCollections, HDF5
 
 # Initialize model object
 m = AnSchorfheide(testing = true)
