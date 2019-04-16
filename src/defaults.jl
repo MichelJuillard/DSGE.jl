@@ -31,7 +31,7 @@ function default_settings!(m::AbstractModel)
         "Observables used in conditional forecasts")
     settings[:cond_semi_names] = Setting(:cond_semi_names, [:obs_spread, :obs_nominalrate, :obs_longrate],
         "Observables used in semiconditional forecasts")
-    settings[:use_population_forecast] = Setting(:use_population_forecast, false,
+    settings[:use_population_forecast] = Setting(:use_population_forecast, true,
         "Whether to use population forecasts as data")
     settings[:population_mnemonic] = Setting(:population_mnemonic, :CNP16OV__FRED,
         "Mnemonic of FRED data series for computing per-capita values (a Symbol)")
@@ -70,8 +70,7 @@ function default_settings!(m::AbstractModel)
         "Max number of free params for which to calculate Hessian")
     settings[:optimization_method] = Setting(:optimization_method, :csminwel,
                                              "Method for finding the posterior mode")
-    # MJ
-    settings[:optimization_iterations] = Setting(:optimization_iterations, 2,
+    settings[:optimization_iterations] = Setting(:optimization_iterations, 100,
         "Number of iterations the optimizer should run for")
     settings[:optimization_step_size] = Setting(:optimization_step_size, 0.01,
         "Step size scaling factor for optimization")
