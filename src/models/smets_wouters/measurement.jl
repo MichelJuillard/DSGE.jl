@@ -1,3 +1,4 @@
+using LinearAlgebra
 """
 ```
 measurement{T<:AbstractFloat}(m::SmetsWouters{T}, TTT::Matrix{T}, RRR::Matrix{T},

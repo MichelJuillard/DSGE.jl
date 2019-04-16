@@ -7,7 +7,7 @@ The transition equation of the state-space model takes the form
 
 The `Transition` struct stores the coefficient `Matrix{T}`s (`TTT`, `RRR`) and constant `Vector{T} CCC`.
 """
-struct Transition{T<:AbstractFloat}
+mutable struct Transition{T<:AbstractFloat}
     TTT::Matrix{T}
     RRR::Matrix{T}
     CCC::Vector{T}
@@ -47,7 +47,7 @@ observables `y_t`, and `Ne` is the number of shocks `ϵ_t`:
 - `QQ`: the `Ne` x `Ne` covariance matrix for the shocks `ϵ_t`
 - `EE`: the `Ny` x `Ny` covariance matrix for the measurement error `η_t`
 """
-struct Measurement{T<:AbstractFloat}
+mutable struct Measurement{T<:AbstractFloat}
     ZZ::Matrix{T}
     DD::Vector{T}
     QQ::Matrix{T}
@@ -86,7 +86,7 @@ pseudo-observables `x_t`:
 - `ZZ_pseudo`: the `Nx` x `Ns` pseudo-measurement matrix
 - `DD_pseudo`: the `Nx` x 1 constant vector
 """
-struct PseudoMeasurement{T<:AbstractFloat}
+mutable struct PseudoMeasurement{T<:AbstractFloat}
     ZZ_pseudo::Matrix{T}
     DD_pseudo::Vector{T}
 end
@@ -106,7 +106,7 @@ A struct containing the transition and measurement equations for a
 state-space model. The matrices may be directly indexed: `sys[:TTT]`
 returns `sys.transition.TTT`, etc.
 """
-struct System{T<:AbstractFloat}
+mutable struct System{T<:AbstractFloat}
     transition::Transition{T}
     measurement::Measurement{T}
     pseudo_measurement::PseudoMeasurement{T}

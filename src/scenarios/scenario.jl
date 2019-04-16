@@ -15,7 +15,7 @@ abstract type AbstractScenario end
 
 abstract type SingleScenario <: AbstractScenario end
 
-struct Scenario <: SingleScenario
+mutable struct Scenario <: SingleScenario
     key::Symbol
     description::String
     target_names::Vector{Symbol}

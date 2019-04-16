@@ -234,7 +234,7 @@ function Base.cat(mb1::MeansBands, mb2::MeansBands;
 
     # forecast string
     if isempty(forecast_string) && (mb1.metadata[:forecast_string] != mb2.metadata[:forecast_string])
-        warn("No forecast_string provided: using $(mb1.metadata[:forecast_string])")
+        @warn("No forecast_string provided: using $(mb1.metadata[:forecast_string])")
     end
     forecast_string = mb1.metadata[:forecast_string]
 
@@ -418,7 +418,7 @@ function get_shockdec_means(mb::MeansBands, var::Symbol; shocks::Vector{Symbol} 
 
     # Extract the subset of columns relating to the variable `var` and the shocks listed in `shocks.`
     # If `shocks` not provided, give all the shocks
-    var_cols = collect(names(mb.means))[find([contains(string(col), string(var)) for col in names(mb.means)])]
+    var_cols = collect(names(mb.means))[findall([contains(string(col), string(var)) for col in names(mb.means)])]
     if !isempty(shocks)
         var_cols = [col -> contains(string(col), string(shock)) ? col : missing for shock in shocks]
     end
@@ -550,7 +550,7 @@ function get_shockdec_bands(mb::MeansBands, var::Symbol;
 
     # Extract the subset of columns relating to the variable `var` and the shocks listed in `shocks.`
     # If `shocks` not provided, give all the shocks
-    var_cols = collect(keys(mb.bands))[find([contains(string(col), string(var)) for col in keys(mb.bands)])]
+    var_cols = collect(keys(mb.bands))[findall([contains(string(col), string(var)) for col in keys(mb.bands)])]
     if !isempty(shocks)
         var_cols = [col -> contains(string(col), string(shock)) ? col : missing for shock in shocks]
     end

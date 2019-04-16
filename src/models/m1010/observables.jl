@@ -1,7 +1,7 @@
 function init_observable_mappings!(m::Model1010)
 
     observables = OrderedDict{Symbol,Observable}()
-    population_mnemonic = get(get_setting(m, :population_mnemonic))
+    population_mnemonic = get_setting(m, :population_mnemonic)
 
     ############################################################################
     ## 1. GDP
@@ -256,7 +256,7 @@ function init_observable_mappings!(m::Model1010)
 
         tfp_unadj      = levels[:TFPKQ]
         tfp_unadj_mean = mean(tfp_unadj_inrange[.!isnan.(tfp_unadj_inrange)])
-        (tfp_unadj - tfp_unadj_mean) ./ (4*(1 - levels[:TFPJQ]))
+        (tfp_unadj .- tfp_unadj_mean) ./ (4*(1 .- levels[:TFPJQ]))
     end
 
     tfp_rev_transform = quartertoannual

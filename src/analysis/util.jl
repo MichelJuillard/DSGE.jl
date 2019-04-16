@@ -4,15 +4,15 @@
 
 function get_class(output_var::Symbol)
     s = string(output_var)
-    if contains(s, "pseudo")
+    if occursin(s, "pseudo")
         :pseudo
-    elseif contains(s, "obs")
+    elseif occursin(s, "obs")
         :obs
-    elseif contains(s, "state")
+    elseif occursin(s, "state")
         :states
-    elseif contains(s, "stdshock")
+    elseif occursin(s, "stdshock")
         :stdshocks
-    elseif contains(s, "shock")
+    elseif occursin(s, "shock")
         :shocks
     else
         error("Invalid output_var: " * s)
@@ -21,39 +21,39 @@ end
 
 function get_product(output_var::Symbol)
     s = string(output_var)
-    if contains(s, "bddhistforecast4q")
+    if occursin(s, "bddhistforecast4q")
         :bddhistforecast4q
-    elseif contains(s, "histforecast4q")
+    elseif occursin(s, "histforecast4q")
         :histforecast4q
-    elseif contains(s, "bddhistforecast")
+    elseif occursin(s, "bddhistforecast")
         :bddhistforecast
-    elseif contains(s, "histforecast")
+    elseif occursin(s, "histforecast")
         :histforecast
-    elseif contains(s, "hist4q")
+    elseif occursin(s, "hist4q")
         :hist4q
-    elseif contains(s, "histut")
+    elseif occursin(s, "histut")
         :histut
-    elseif contains(s, "hist")
+    elseif occursin(s, "hist")
         :hist
-    elseif contains(s, "bddforecast4q")
+    elseif occursin(s, "bddforecast4q")
         :bddforecast4q
-    elseif contains(s, "forecast4q")
+    elseif occursin(s, "forecast4q")
         :forecast4q
-    elseif contains(s, "bddforecastut")
+    elseif occursin(s, "bddforecastut")
         :bddforecastut
-    elseif contains(s, "forecastut")
+    elseif occursin(s, "forecastut")
         :forecastut
-    elseif contains(s, "bddforecast")
+    elseif occursin(s, "bddforecast")
         :bddforecast
-    elseif contains(s, "forecast")
+    elseif occursin(s, "forecast")
         :forecast
-    elseif contains(s, "shockdec")
+    elseif occursin(s, "shockdec")
         :shockdec
-    elseif contains(s, "dettrend")
+    elseif occursin(s, "dettrend")
         :dettrend
-    elseif contains(s, "trend")
+    elseif occursin(s, "trend")
         :trend
-    elseif contains(s, "irf")
+    elseif occursin(s, "irf")
         :irf
     else
         error("Invalid output_var: " * s)
@@ -216,7 +216,7 @@ function get_population_series(mnemonic::Symbol, population_data::DataFrame,
 
         padding = if start_date < population_data[1, :date]
             # Start date is before population data; compute number of NaNs to prepend
-            warn("Start date $start_date is before population data begins: prepending NaNs")
+            @warn("Start date $start_date is before population data begins: prepending NaNs")
             n_nans = subtract_quarters(population_data[1, :date], start_date)
 
             DataFrame(date = quarter_range(start_date, iterate_quarters(population_data[1,:date], -1)))

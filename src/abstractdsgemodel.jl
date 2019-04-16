@@ -313,7 +313,7 @@ end
 function date_shockdec_start(m::AbstractModel)
     startdate = get_setting(m, :shockdec_startdate)
     if !ismissing(startdate)
-        return get(startdate)
+        return startdate
     else
         return date_mainsample_start(m)
     end
@@ -322,7 +322,7 @@ end
 function date_shockdec_end(m::AbstractModel)
     enddate =  get_setting(m, :shockdec_enddate)
     if !ismissing(enddate)
-        return get(enddate)
+        return enddate
     else
         return date_forecast_end(m)
     end

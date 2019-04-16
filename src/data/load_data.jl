@@ -138,7 +138,7 @@ function load_data_levels(m::AbstractModel; verbose::Symbol=:low)
         # Check that this source is actually used
         mnemonics = data_series[source]
         if isempty(mnemonics)
-            warn("No series were specified from $(string(source))")
+            @warn("No series were specified from $(string(source))")
             continue
         end
 
@@ -167,7 +167,7 @@ function load_data_levels(m::AbstractModel; verbose::Symbol=:low)
             if !in(lastdayofquarter(start_date), addl_data[:date]) ||
                 !in(lastdayofquarter(end_date), addl_data[:date])
 
-                warn("$file does not contain the entire date range specified; NaNs used.")
+                @warn("$file does not contain the entire date range specified; NaNs used.")
             end
 
             # Make sure each mnemonic that was specified is present
@@ -189,7 +189,7 @@ function load_data_levels(m::AbstractModel; verbose::Symbol=:low)
             addl_data = DataFrame(fill(NaN, (size(df,1), length(mnemonics))))
             names!(addl_data, mnemonics)
             df = hcat(df, addl_data)
-            warn("$file was not found; NaNs used")
+            @warn("$file was not found; NaNs used")
         end
     end
 
@@ -231,7 +231,7 @@ function load_cond_data_levels(m::AbstractModel; verbose::Symbol=:low)
 
     # Prepare file name
     cond_vint = cond_vintage(m)
-    cond_idno = lpad(cond_id(m), 2, 0) # print as 2 digits
+    cond_idno = lpad(string(cond_id(m)), 2, string(0)) # print as 2 digits
     file = inpath(m, "cond", "cond_cdid=" * cond_idno * "_cdvt=" * cond_vint * ".csv")
 
     if isfile(file)
@@ -250,8 +250,8 @@ function load_cond_data_levels(m::AbstractModel; verbose::Symbol=:low)
         if isfile(population_forecast_file) && !ismissing(get_setting(m, :population_mnemonic))
             pop_forecast = CSV.read(population_forecast_file)
 
-            population_mnemonic = get(parse_population_mnemonic(m)[1])
-            rename!(pop_forecast, :POPULATION =>  population_mnemonic)
+            population_mnemonic = parse_population_mnemonic(m)[1]
+            rename!(pop_forecast, :POPULATION =>  Symbol(population_mnemonic))
             DSGE.na2nan!(pop_forecast)
             DSGE.format_dates!(:date, pop_forecast)
 
@@ -360,7 +360,7 @@ function isvalid_data(m::AbstractModel, df::DataFrame; cond_type::Symbol = :none
     # Ensure that no series is all NaN
     for col in setdiff(names(df), [:date])
         if all(isnan.(df[col]))
-            warn("df[$col] is all NaN.")
+            @warn("df[$col] is all NaN.")
         end
     end
 
@@ -516,7 +516,7 @@ function read_population_forecast(m::AbstractModel; verbose::Symbol = :low)
     if ismissing(population_mnemonic)
         error("No population mnemonic provided")
     else
-        read_population_forecast(population_forecast_file, :population_mnemonic; verbose = verbose)
+        read_population_forecast(population_forecast_file, Symbol(population_mnemonic); verbose = verbose)
     end
 end
 
@@ -537,7 +537,7 @@ function read_population_forecast(filename::String, population_mnemonic::Symbol;
         return df[:, [:date, population_mnemonic]]
     else
         if VERBOSITY[verbose] >= VERBOSITY[:low]
-            warn("No population forecast found")
+            @warn("No population forecast found")
         end
 
         return DataFrame()

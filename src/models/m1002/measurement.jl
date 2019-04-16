@@ -1,3 +1,4 @@
+using LinearAlgebra
 """
 ```
 measurement{T<:AbstractFloat}(m::Model1002{T}, TTT::Matrix{T}, RRR::Matrix{T},
@@ -94,7 +95,7 @@ function measurement(m::Model1002{T},
     DD[obs[:obs_spread]]                   = 100*log(m[:spr])
 
     ## 10 yrs infl exp
-    TTT10                          = (1/40)*((eye(size(TTT, 1)) - TTT)\(TTT - TTT^41))
+    TTT10                          = (1/40)*((Matrix(I, size(TTT, 1), size(TTT, 1)) - TTT)\(TTT - TTT^41))
     ZZ[obs[:obs_longinflation], :] = TTT10[endo[:π_t], :]
     DD[obs[:obs_longinflation]]    = 100*(m[:π_star]-1)
 

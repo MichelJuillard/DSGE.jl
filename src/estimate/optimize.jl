@@ -130,7 +130,7 @@ function optimize!(m::AbstractModel,
         while !success
             # take a step in model space
             for i in subset_inds
-                prior_var = moments(m.parameters[i])[2]#moments(get(m.parameters[i].prior))[2]
+                prior_var = moments(m.parameters[i])[2]
                 proposal_in_bounds = false
                 proposal = x_all_model[i]
                 lower = m.parameters[i].valuebounds[1]

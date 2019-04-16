@@ -56,8 +56,12 @@ function shock_decompositions(system::System{S},
     pseudo = zeros(S, npseudo, allperiods, nshocks)
 
     # Check dates
-    if forecast_horizons <= 0 || start_index < 1 || end_index > allperiods
-        throw(DomainError())
+    if forecast_horizons <= 0
+        throw(DomainError(forecast_horizons))
+     elseif start_index < 1 || end_index > allperiods
+        throw(DomainError(start_index))
+     elseif end_index > allperiods
+        throw(DomainError(end_index))
     end
 
     # Set constant system matrices to 0

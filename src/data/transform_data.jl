@@ -133,7 +133,7 @@ function transform_population_data(population_data::DataFrame, population_foreca
     if !isempty(population_forecast)
         last_recorded_date = population_recorded[end, :date]
         if population_forecast[1, :date] <= last_recorded_date
-            last_recorded_ind   = find(population_forecast[:date] .== last_recorded_date)[1]
+            last_recorded_ind   = findall(population_forecast[:date] .== last_recorded_date)[1]
             population_forecast = population_forecast[(last_recorded_ind+1):end, :]
         end
         @assert subtract_quarters(population_forecast[1, :date], last_recorded_date) == 1
@@ -169,7 +169,7 @@ function transform_population_data(population_data::DataFrame, population_foreca
     # Output dictionary for population forecast
     population_forecast_out = DataFrame()
     if n_population_forecast_obs > 0
-        population_forecast_out[:date] = convert(Array{Date}, population_forecast[:date])
+        population_forecast_out[:date] = population_forecast[:date]
         population_forecast_out[:dlpopulation_forecast] = difflog(population_forecast[population_mnemonic])
 
         if use_hpfilter

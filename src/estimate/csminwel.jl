@@ -270,7 +270,7 @@ function csminwel(fcn::Function,
                 retcodeh = retcode3
             end
 
-            if isdefined(:gh)
+            if @isdefined gh 
                 nogh = isempty(gh)
             else
                 nogh = true
@@ -342,7 +342,7 @@ using the true derivative.
 =#
 function csminwel(fcn::Function,
                   x0::Vector,
-                  H0::Matrix=0.5.*Matrix(I< length(x0), length(x0)),
+                  H0::Matrix=0.5.*Matrix(I, length(x0), length(x0)),
                   args...;
                   xtol::Real           = 1e-32, # default from Optim.jl
                   ftol::Float64        = 1e-14, # Default from csminwel
@@ -577,7 +577,7 @@ function bfgsi(H0, dg, dx; verbose::Symbol = :none)
         # gradient is super small so don't worry updating right now
         # do nothing
     else
-        warn("bfgs update failed")
+        @warn("bfgs update failed")
 
         if VERBOSITY[verbose] >= VERBOSITY[:high]
             @printf "|dg| = %f, |dx| = %f\n" (norm(dg)) (norm(dx))

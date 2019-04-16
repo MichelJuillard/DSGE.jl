@@ -31,7 +31,7 @@ necessary.
 """
 function prepare_forecast_inputs!(m::AbstractModel{S},
     input_type::Symbol, cond_type::Symbol, output_vars::Vector{Symbol};
-    df::DataFrame = DataFrame(), subset_inds::Int64 = 1:0,
+    df::DataFrame = DataFrame(), subset_inds::UnitRange = 1:0,
     verbose::Symbol = :none) where S<:AbstractFloat
 
     # Compute everything that will be needed to plot original output_vars
@@ -114,7 +114,7 @@ function load_draws(m::AbstractModel, input_type::Symbol; subset_inds::UnitRange
     # Load single draw
     if input_type in [:mean, :mode]
 
-        params = convert(Vector{Float64}, h5read(input_file_name, "params"))
+        params = h5read(input_file_name, "params")
 
     # Load full distribution
     elseif input_type == :full
@@ -135,7 +135,7 @@ function load_draws(m::AbstractModel, input_type::Symbol; subset_inds::UnitRange
 
         init_parameters!(m)
         tmp = map(α -> α.value, m.parameters)
-        params = convert(Vector{Float64}, tmp)
+        params = tmp
 
     end
 
@@ -299,7 +299,7 @@ function forecast_one(m::AbstractModel{Float64},
                                       params)
 
             # Assemble outputs from this block and write to file
-            forecast_outputs = convert(Vector{Dict{Symbol, Array{Float64}}}, forecast_outputs)
+#            forecast_outputs = convert(Vector{Dict{Symbol, Array{Float64}}}, forecast_outputs)
             forecast_output = assemble_block_outputs(forecast_outputs)
             write_forecast_outputs(m, input_type, output_vars, forecast_output_files,
                                    forecast_output; df = df, block_number = Nullable(block),
@@ -410,14 +410,14 @@ function forecast_one_draw(m::AbstractModel{Float64}, input_type::Symbol, cond_t
 
     # Decide whether to draw states/shocks in smoother/forecast
     uncertainty_override = forecast_uncertainty_override(m)
-    uncertainty = if isnull(uncertainty_override)
+    uncertainty = if ismissing(uncertainty_override)
         if input_type in [:init, :mode, :mean]
             false
         elseif input_type in [:full, :subset]
             true
         end
     else
-        get(uncertainty_override)
+        uncertainty_override
     end
 
 

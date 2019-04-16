@@ -143,7 +143,7 @@ function likelihood(m::AbstractModel,
         return kal[:total_loglh]
     catch err
         if catch_errors && isa(err, DomainError)
-            warn("Log of incremental likelihood is negative; returning -Inf")
+            @warn("Log of incremental likelihood is negative; returning -Inf")
             return -Inf
         else
             rethrow(err)

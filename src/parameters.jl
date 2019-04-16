@@ -83,7 +83,7 @@ conditions.
   significance.
 - `tex_label::String`: String for printing the parameter name to LaTeX.
 """
-struct UnscaledParameter{T,U} <: Parameter{T,U}
+mutable struct UnscaledParameter{T,U} <: Parameter{T,U}
     key::Symbol
     value::T                                # parameter value in model space
     valuebounds::Interval{T}                # bounds of parameter value
@@ -168,7 +168,7 @@ mutable struct SteadyStateParameter{T} <: AbstractParameter{T}
     tex_label::String
 end
 
-hasprior(p::Parameter) = !isnull(p.prior)
+hasprior(p::Parameter) = !ismissing(p.prior)
 
 NullableOrPrior = Union{NullablePrior, ContinuousUnivariateDistribution}
 
@@ -316,7 +316,7 @@ function Base.show(io::IO, p::Parameter{T,U}) where {T,U}
     #!isa(U(),DSGE.Untransformed) && @printf io "transformed value: %+6f\n" p.value
 
     if hasprior(p)
-        @printf io "prior distribution:\n\t%s\n" get(p.prior)
+        @printf io "prior distribution:\n\t%s\n" p.prior
     else
         @printf io "prior distribution:\n\t%s\n" "no prior"
     end
@@ -504,7 +504,7 @@ function describe_prior(param::Parameter)
     elseif !param.fixed && !isnull(param.prior)
         (prior_mean, prior_std) = DSGE.moments(param)
 
-        prior_dist = string(typeof(get(param.prior)))
+        prior_dist = string(typeof(param.prior))
         prior_dist = replace(prior_dist, "Distributions.", "")
         prior_dist = replace(prior_dist, "DSGE.", "")
         prior_dist = replace(prior_dist, "{Float64}", "")

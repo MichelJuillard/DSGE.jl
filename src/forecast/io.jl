@@ -192,7 +192,7 @@ function write_forecast_outputs(m::AbstractModel, input_type::Symbol,
             continue
         end
         filepath = forecast_output_files[var]
-        if typeof(block_number) == Missing || get(block_number) == 1
+        if typeof(block_number) == Missing || block_number == 1
             jldopen(filepath, "w") do file
                 write_forecast_metadata(m, file, var)
 
@@ -207,7 +207,7 @@ function write_forecast_outputs(m::AbstractModel, input_type::Symbol,
                 else
                     # Otherwise, pre-allocate HDF5 dataset which will contain
                     # all draws
-                    if !(typeof(block_number) == Missing) && get(block_number) == 1
+                    if !(typeof(block_number) == Missing) && block_number == 1
                         # Determine forecast output size
                         dims  = get_forecast_output_dims(m, input_type, var; subset_inds = subset_inds)
                         block_size = forecast_block_size(m)
@@ -383,7 +383,7 @@ function read_forecast_output(m::AbstractModel, input_type::Symbol, cond_type::S
         fcast_series = if (typeof(shock_name) == Missing)
             read_forecast_series(file, class, product, var_name)
         else
-            read_forecast_series(file, class, product, var_name, get(shock_name))
+            read_forecast_series(file, class, product, var_name, shock_name)
         end
 
         # The `fcast_output` for trends only is of size `ndraws` x `nvars`. We

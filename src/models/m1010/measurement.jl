@@ -1,3 +1,4 @@
+using LinearAlgebra
 """```
 measurement{T<:AbstractFloat}(m::Model1010{T}, TTT::Matrix{T}, RRR::Matrix{T},
                               CCC::Vector{T})
@@ -91,7 +92,7 @@ function measurement(m::Model1010{T},
 
     ## 20 yrs forward transition matrix
     TTT20 = if subspec(m) == "ss16"
-        eye(size(TTT,1))
+        Matrix(I, size(TTT,1), size(TTT,1))
     else
         (1/80)*((UniformScaling(1.) - TTT) \ (UniformScaling(1.) - TTT^80))
     end

@@ -22,8 +22,8 @@ function compute_scenario_system(m::AbstractModel, scen::Scenario;
     for shock in keys(m.exogenous_shocks)
         if !(shock in scen.instrument_names)
             shock_index = m.exogenous_shocks[shock]
-            system[:QQ][shock_index, :] = 0
-            system[:QQ][:, shock_index] = 0
+            system[:QQ][shock_index, :] .= 0
+            system[:QQ][:, shock_index] .= 0
         end
     end
 
@@ -195,7 +195,7 @@ function forecast_scenario(m::AbstractModel, scen::Scenario;
                               1:ndraws)
 
     # Assemble outputs and write to file
-    forecast_outputs = convert(Vector{Dict{Symbol, Array{Float64}}}, forecast_outputs)
+#    forecast_outputs = convert(Vector{Dict{Symbol, Array{Float64}}}, forecast_outputs)
     forecast_output = assemble_block_outputs(forecast_outputs)
     output_files = get_scenario_output_files(m, scen, [:forecastobs, :forecastpseudo])
     write_scenario_forecasts(m, output_files, forecast_output, verbose = verbose)

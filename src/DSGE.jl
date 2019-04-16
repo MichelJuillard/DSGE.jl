@@ -1,5 +1,5 @@
-#isdefined(Base, :__precompile__) && __precompile__()
-__precompile__(false)
+isdefined(Base, :__precompile__) && __precompile__()
+
 
 module DSGE
 #    using Dates

@@ -86,7 +86,7 @@ function moments(θ::Parameter)
     if θ.fixed
         return θ.value, 0.0
     else
-        prior = get(θ.prior)
+        prior = θ.prior
         if isa(prior, RootInverseGamma)
             return prior.τ, prior.ν
         else
@@ -170,7 +170,7 @@ function prior_table(m::AbstractModel; subset_string::String = "",
             θ = params[i]
             (prior_mean, prior_std) = moments(θ)
             @printf priors_fid "\$%s\$ & " θ.tex_label
-            @printf priors_fid "%s & " (θ.fixed ? "-" : distid(get(θ.prior)))
+            @printf priors_fid "%s & " (θ.fixed ? "-" : distid(θ.prior))
             @printf priors_fid "%0.2f & " prior_mean
             @printf priors_fid "%0.2f & " prior_std
             anticipated_shock_footnote(θ)
@@ -180,7 +180,7 @@ function prior_table(m::AbstractModel; subset_string::String = "",
                 θ = params[n_rows + i]
                 (prior_mean, prior_std) = moments(θ)
                 @printf priors_fid "\$%s\$ & " θ.tex_label
-                @printf priors_fid "%s & " (θ.fixed ? "-" : distid(get(θ.prior)))
+                @printf priors_fid "%s & " (θ.fixed ? "-" : distid(θ.prior))
                 @printf priors_fid "%0.2f & " prior_mean
                 @printf priors_fid "%0.2f" prior_std
                 anticipated_shock_footnote(θ)
@@ -290,7 +290,7 @@ function prior_posterior_moments_table(m::AbstractModel,
             (prior_mean, prior_std) = moments(param)
 
             @printf moments_fid "\$%4.99s\$ & " param.tex_label
-            @printf moments_fid "%s & " (param.fixed ? "-" : distid(get(param.prior)))
+            @printf moments_fid "%s & " (param.fixed ? "-" : distid(param.prior))
             @printf moments_fid "%8.3f & " prior_mean
             @printf moments_fid "%8.3f & " prior_std
             @printf moments_fid "%8.3f & " post_means[index]
@@ -371,7 +371,7 @@ function prior_posterior_table(m::AbstractModel, post_values::Vector;
             post_value = if param.fixed
                 param.value
             else
-                prior = get(param.prior)
+                prior = param.prior
                 isa(prior, RootInverseGamma) ? prior.τ : mean(prior)
             end
 

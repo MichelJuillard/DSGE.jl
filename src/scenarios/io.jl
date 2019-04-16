@@ -37,7 +37,7 @@ Add the targets from the `draw_index`th draw of the raw scenario targets to
 """
 function load_scenario_targets!(m::AbstractModel, scen::Scenario, draw_index::Int)
     path = get_scenario_input_file(m, scen)
-    raw_targets = squeeze(h5read(path, "arr", (draw_index, :, :)), 1)
+    raw_targets = dropdims(h5read(path, "arr", (draw_index, :, :)), dims=1)
     target_inds = load(path, "target_indices")
 
     @assert collect(keys(target_inds)) == scen.target_names "Target indices in $path do not match target names in $(scen.key)"

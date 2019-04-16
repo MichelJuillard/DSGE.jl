@@ -35,7 +35,7 @@ Returns a vector of `Dates`, consisting of the last days of each quarter between
 `t0` and `t1`, inclusive.
 """
 function quarter_range(t0::Date, t1::Date)
-    dr = t0:t1
+    dr = t0:Day(1):t1
     return Base.filter(d -> Dates.lastdayofquarter(d) == d, dr)
 end
 
@@ -119,7 +119,7 @@ function test_matrix_eq2(expect::Array{T},
                          expstr::String,
                          actstr::String,
                          ϵ_abs::Float64 = 1e-6,
-                         ϵ_rel::Float64 = 1e-2) where {T<:AbstractFloat}
+                         ϵ_rel::Float64 = 1e-2) where T<:AbstractFloat
     if length(expect) ≠ length(actual)
         error("lengths of ", expstr, " and ", actstr, " do not match: ",
               "\n  ", expstr, " (length $(length(expect))) = ", expect,
@@ -143,7 +143,7 @@ function test_matrix_eq2(expect::Array{T},
                    " or |a - b|/|b| <= ", ϵ_rel, "%,",
                    " ∀ a ∈ ", actstr, ",",
                    " ∀ b ∈ ",expstr)
-        warn("assertion failed:\n",
+        @warn("assertion failed:\n",
              "    ", sdiff,
              "\n$(n_abs_diff) entries fail absolute equality filter",
              "\n$(n_rel_diff) entries fail relative equality filter",
