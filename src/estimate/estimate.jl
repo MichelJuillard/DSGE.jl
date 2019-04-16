@@ -285,7 +285,6 @@ function metropolis_hastings(propdist::Distribution,
     mhparams = zeros(n_sim, n_parameters(m))
 
     # Open HDF5 file for saving parameter draws
-    println(rawpath(m,"estimate","mhsave.h5"))
     simfile = h5open(rawpath(m,"estimate","mhsave.h5"),"w")
     n_saved_obs = n_sim * (n_blocks - n_burn)
     parasim = d_create(simfile, "mhparams", datatype(Float32),
