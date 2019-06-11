@@ -9,6 +9,7 @@ module DSGE
     using DataStructures: SortedDict, insert!, ForwardOrdering, OrderedDict
     using Dates
     using Distributed
+    using Kalman
     import LinearAlgebra: rank, GeneralizedSchur, LAPACKException, norm, diag, dot, Diagonal, schur!, ordschur!, svd!, I, eigen
     using Printf
     using QuantEcon: solve_discrete_lyapunov
