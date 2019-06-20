@@ -35,11 +35,12 @@ log Pr(Θ|data) = log Pr(data|Θ) + log Pr(Θ) + const
   `ParamBoundsError`
 """
 function posterior(m::AbstractModel{T},
-                    data::Matrix{T};
-                    mh::Bool = false,
-                    catch_errors::Bool = false) where T<:AbstractFloat
+                   data::Matrix{T},
+                   kalman_ws::KalmanLikelihoodWs;
+                   mh::Bool = false,
+                   catch_errors::Bool = false) where T<:AbstractFloat
     catch_errors = catch_errors || mh
-    post = likelihood(m, data; mh = mh, catch_errors = catch_errors) + prior(m)
+    post = likelihood(m, data, kalman_ws; mh = mh, catch_errors = catch_errors) + prior(m)
     return post
 end
 
@@ -66,7 +67,8 @@ Evaluates the log posterior density at `parameters`.
 """
 function posterior!(m::AbstractModel{T},
                     parameters::Vector{T},
-                    data::Matrix{T};
+                    data::Matrix{T},
+                    kalman_ws::KalmanLikelihoodWs;
                     mh::Bool = false,
                     catch_errors::Bool = false) where T<:AbstractFloat
     catch_errors = catch_errors || mh
@@ -83,7 +85,7 @@ function posterior!(m::AbstractModel{T},
     else
         update!(m, parameters)
     end
-    return posterior(m, data; mh=mh, catch_errors=catch_errors)
+    return posterior(m, data, kalman_ws; mh=mh, catch_errors=catch_errors)
 
 end
 
@@ -111,7 +113,8 @@ filter over the main sample all at once.
 - `catch_errors`: Whether or not to catch errors of type `GensysError`
 """
 function likelihood(m::AbstractModel,
-                    data::Matrix{T};
+                    data::Matrix{T},
+                    kalman_ws::KalmanLikelihoodWs;
                     mh::Bool = false,
                     catch_errors::Bool = false) where T<:AbstractFloat
     catch_errors = catch_errors || mh
@@ -139,7 +142,7 @@ function likelihood(m::AbstractModel,
 
     # Return total log-likelihood, excluding the presample
     try
-        kal = filter(m, data, system; outputs = [:loglh], include_presample = false)
+        kal = filter(m, data, system, kalman_ws; outputs = [:loglh], include_presample = false)
         return kal[:total_loglh]
     catch err
         if catch_errors && isa(err, DomainError)

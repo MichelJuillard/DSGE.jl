@@ -8,7 +8,8 @@ Compute Hessian of DSGE posterior function evaluated at x.
 """
 function hessian!(m::AbstractModel,
                   x::Vector{T},
-                  data::Matrix{T};
+                  data::Matrix{T},
+                  kalman_ws::KalmanLikelihoodWs;
                   verbose::Symbol = :none) where T<:AbstractFloat
     update!(m, x)
 
@@ -32,7 +33,7 @@ function hessian!(m::AbstractModel,
     x_hessian = x_model[para_free_inds]
     function f_hessian(x_hessian)
         x_model[para_free_inds] = x_hessian
-        return -posterior!(m, x_model, data)
+        return -posterior!(m, x_model, data, kalman_ws)
     end
 
     distr=use_parallel_workers(m)

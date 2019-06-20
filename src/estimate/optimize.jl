@@ -33,7 +33,8 @@ optimize!(m::AbstractModel, data::Matrix;
 Wrapper function to send a model to csminwel (or another optimization routine).
 """
 function optimize!(m::AbstractModel,
-                   data::Matrix;
+                   data::Matrix,
+                   kalman_ws::KalmanLikelihoodWs;
                    method::Symbol       = :csminwel,
                    xtol::Real           = 1e-32,  # default from Optim.jl
                    ftol::Float64        = 1e-14,  # Default from csminwel
@@ -72,6 +73,7 @@ function optimize!(m::AbstractModel,
     x_model        = transform_to_real_line(m.parameters)
     x_opt          = x_model[para_free_inds]
 
+
     ########################################################################################
     ### Step 2: Initialize f_opt
     ########################################################################################
@@ -84,9 +86,9 @@ function optimize!(m::AbstractModel,
             return Inf
         end
         if mle
-            out = -likelihood(m, data; catch_errors = true)
+            out = -likelihood(m, data, kalman_ws; catch_errors = true)
         else
-            out = -posterior(m, data; catch_errors=true)
+            out = -posterior(m, data, kalman_ws; catch_errors=true)
         end
         out = !isnan(out) ? out : Inf
         return out

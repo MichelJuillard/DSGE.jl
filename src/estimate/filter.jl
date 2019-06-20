@@ -35,18 +35,18 @@ where `S<:AbstractFloat`.
 
 - `kal::Kalman`: see `?Kalman`
 """
-function filter(m::AbstractModel, df::DataFrame, system::System{S},
+function filter(m::AbstractModel, df::DataFrame, system::System{S}, kalman_ws::KalmanLikelihoodWs,
     s_0::Vector{S} = Vector{S}(), P_0::Matrix{S} = Matrix{S}(undef, 0, 0);
     cond_type::Symbol = :none, include_presample::Bool = true, in_sample::Bool = true,
     outputs::Vector{Symbol} = [:loglh, :pred, :filt]) where S<:AbstractFloat
 
     data = df_to_matrix(m, df; cond_type = cond_type, in_sample = in_sample)
     start_date = max(date_presample_start(m), df[1, :date])
-    filter(m, data, system, s_0, P_0; start_date = start_date,
+    filter(m, data, system, kalman_ws, s_0, P_0; start_date = start_date,
            include_presample = include_presample, outputs = outputs)
 end
 
-function filter(m::AbstractModel, data::Matrix{S}, system::System,
+function filter(m::AbstractModel, data::Matrix{S}, system::System, kalman_ws::KalmanLikelihoodWs,
     s_0::Vector{S} = Vector{S}(undef, 0), P_0::Matrix{S} = Matrix{S}(undef, 0, 0);
     start_date::Date = date_presample_start(m), include_presample::Bool = true,
     outputs::Vector{Symbol} = [:loglh, :pred, :filt]) where S<:AbstractFloat
@@ -71,8 +71,25 @@ function filter(m::AbstractModel, data::Matrix{S}, system::System,
     Nt0 = include_presample ? 0 : n_presample_periods(m)
 
     # Run Kalman filter, construct Kalman object, and return
-    out = kalman_filter(regime_inds, data, TTTs, RRRs, CCCs, QQs,
-                        ZZs, DDs, EEs, s_0, P_0; outputs = outputs, Nt0 = Nt0)
+    # out = kalman_filter(regime_inds, data, TTTs, RRRs, CCCs, QQs,
+    #                     ZZs, DDs, EEs, s_0, P_0; outputs = outputs, Nt0 = Nt0)
 
-    return Kalman(out...)
+    if isempty(s_0) || isempty(P_0)
+        s_0, P_0 = init_stationary_states(TTTs[1], RRRs[1], CCCs[1], QQs[1])
+    end
+
+    s = copy(s_0)
+    P = copy(P_0)
+    data1 = data .- DDs[1]
+
+    nobs = size(data,2)
+    ny, ns = size(ZZs[1])
+    np = size(QQs[1], 1)
+    
+    data_pattern = [findall(isfinite.(data1[:,i])) for i in 1:nobs]
+
+    total_loglh = kalman_likelihood(data1, ZZs[1], EEs[1], TTTs[1], RRRs[1], QQs[1], s, P, 1, size(data,2), Nt0, kalman_ws, data_pattern)
+
+    return Kalman(zeros(nobs), zeros(ns, nobs), zeros(ns, ns, nobs), zeros(ns, nobs),
+                  zeros(ns, ns, nobs), zeros(ns), zeros(ns, ns), s, P, total_loglh)
 end

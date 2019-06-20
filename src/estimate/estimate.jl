@@ -77,9 +77,17 @@ function estimate(m::AbstractModel, data::Matrix{Float64};
         max_attempts = get_setting(m, :optimization_attempts)
         attempts = 1
 
+        system = compute_system(m)
+        ny, ns = size(system[:ZZ])
+        np = size(system[:QQ],1)
+        nobs = size(data, 2)
+        println("ny: $ny, ns: $ns, np: $np, nobs: $nobs")
+    
+        kalman_ws = KalmanLikelihoodWs{Float64, Int64}(ny, ns, np, nobs)
+        
         while !converged
             ti = time_ns()
-            out, H = optimize!(m, data;
+            out, H = optimize!(m, data, kalman_ws;
                                method = get_setting(m, :optimization_method),
                                ftol=ftol, grtol = gtol, xtol = xtol,
                                iterations=n_iterations, show_trace=true, step_size=step_size,
@@ -130,7 +138,7 @@ function estimate(m::AbstractModel, data::Matrix{Float64};
             println("Recalculating Hessian...")
         end
 
-        hessian, _ = hessian!(m, params, data; verbose=verbose)
+        hessian, _ = hessian!(m, params, data, kalman_ws; verbose=verbose)
 
         h5open(rawpath(m, "estimate","hessian.h5"),"w") do file
             file["hessian"] = hessian
